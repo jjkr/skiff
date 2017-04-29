@@ -1,5 +1,8 @@
-; ModuleID = 'main'
-source_filename = "main"
+; ModuleID = 'simpleFunc.sk'
+source_filename = "simpleFunc.sk"
+
+define i32 @main(i32 %argc, i8** %argv) {
+}
 
 define i32 @foo(i32 %x, i32 %y) {
 entry:

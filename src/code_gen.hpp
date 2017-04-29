@@ -11,7 +11,7 @@ namespace sk
 class CodeGen : public AstVisitor
 {
 public:
-    CodeGen();
+    CodeGen(string_view sourceFile);
 
     void visit(Module& module) override;
     void visit(Block& block) override;
@@ -25,6 +25,7 @@ public:
     llvm::Module& getLlvmModule() { return *m_module; }
 
 private:
+    Block* m_block = nullptr;
     llvm::Value* m_value = nullptr;
     llvm::LLVMContext m_llvmContext;
     llvm::IRBuilder<> m_irBuilder;

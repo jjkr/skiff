@@ -20,14 +20,17 @@ public:
 class Block : public AstNode
 {
 public:
+    Block(string_view name);
     virtual ~Block() {}
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
+    string_view getName() const { return m_name; }
     std::vector<std::unique_ptr<Expr>>& getExpressions() { return m_expressions; }
 
 private:
     //std::map<std::string, Expr*> symbols;
     //std::vector<std::unique_ptr<Function>> functions;
+    const string_view m_name;
     std::vector<std::unique_ptr<Expr>> m_expressions;
 };
 

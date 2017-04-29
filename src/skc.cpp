@@ -61,7 +61,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    CodeGen codeGen;
+    CodeGen codeGen(inFilename);
     Lexer lexer({FILE_BUFFER, bytesRead});
     Module module({inFilename.data(), inFilename.size() - 3});
     Parser parser(module, lexer);

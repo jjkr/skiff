@@ -8,7 +8,11 @@ using std::vector;
 
 namespace sk
 {
-Module::Module(string_view name) : m_name(name)
+Block::Block(string_view name) : m_name(name)
+{
+}
+
+Module::Module(string_view name) : m_name(name), m_mainBlock("")
 {
 }
 
@@ -17,7 +21,7 @@ BinaryOp::BinaryOp(TokenType type, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rh
 {
 }
 Function::Function(string_view name, std::vector<string_view>&& parameters)
-    : m_name(name), m_parameters(move(parameters))
+    : m_name(name), m_parameters(move(parameters)), m_block("entry")
 {
 }
 }
