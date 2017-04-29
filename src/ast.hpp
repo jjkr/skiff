@@ -14,7 +14,7 @@ class AstNode
 {
 public:
     virtual ~AstNode() {}
-    virtual void accept(AstVisitor& visitor) {};
+    virtual void accept(AstVisitor& visitor) = 0;
 };
 
 class Block : public AstNode
@@ -23,10 +23,11 @@ public:
     virtual ~Block() {}
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    //std::map<std::string, Expr*> symbols;
-    //std::vector<std::unique_ptr<Function>> functions;
+    std::vector<std::unique_ptr<Expr>>& getExpressions() { return m_expressions; }
 
 private:
+    //std::map<std::string, Expr*> symbols;
+    //std::vector<std::unique_ptr<Function>> functions;
     std::vector<std::unique_ptr<Expr>> m_expressions;
 };
 
@@ -38,12 +39,13 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     string_view getName() const { return m_name; }
-    Block& getMainBlock() { return m_mainBlock; }
-    const Block& getMainBlock() const { return m_mainBlock; }
+    void setMainBlock(std::unique_ptr<Block>&& block) { m_mainBlock = move(block); }
+    Block& getMainBlock() { return *m_mainBlock; }
+    const Block& getMainBlock() const { return *m_mainBlock; }
 
 private:
     const string_view m_name;
-    Block m_mainBlock;
+    std::unique_ptr<Block> m_mainBlock;
 };
 
 class Expr : public AstNode
@@ -95,17 +97,17 @@ private:
 class Function : public Expr
 {
 public:
-    Function(Variable&& name, std::vector<std::unique_ptr<Variable>>&& parameters, std::vector<std::unique_ptr<Expr>>&& expressions);
+    Function(Variable&& name, std::vector<std::unique_ptr<Variable>>&& parameters);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     Variable& getName() { return m_name; }
     std::vector<std::unique_ptr<Variable>>& getParameters() { return m_parameters; }
-    std::vector<std::unique_ptr<Expr>>& getExpressions() { return m_expressions; }
+    Block& getBlock() { return m_block; }
 
 private:
     Variable m_name;
     std::vector<std::unique_ptr<Variable>> m_parameters;
-    std::vector<std::unique_ptr<Expr>> m_expressions;
+    Block m_block;
 };
 
 class FunctionCall : public Expr

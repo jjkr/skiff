@@ -18,9 +18,8 @@ BinaryOp::BinaryOp(TokenType type, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rh
     //children.emplace_back(lhs.release());
     //children.emplace_back(rhs.release());
 }
-Function::Function(Variable&& name, std::vector<unique_ptr<Variable>>&& parameters,
-                   std::vector<std::unique_ptr<Expr>>&& expressions)
-    : m_name(move(name)), m_parameters(move(parameters)), m_expressions(move(expressions))
+Function::Function(Variable&& name, std::vector<unique_ptr<Variable>>&& parameters)
+    : m_name(move(name)), m_parameters(move(parameters))
 {
 }
 }

@@ -4,6 +4,7 @@
 namespace sk
 {
 
+class AstNode;
 class Block;
 class Module;
 class Expr;
@@ -22,5 +23,7 @@ public:
     virtual void visit(Variable& var) = 0;
     virtual void visit(I32Literal& literal) = 0;
     virtual void visit(BinaryOp& op) = 0;
+
+    void dispatch(AstNode& node);
 };
 }

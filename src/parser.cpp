@@ -24,16 +24,26 @@ Parser::Parser(Lexer& lexer) : m_lexer(lexer), m_tok(TokenType::WHITESPACE, "", 
 std::unique_ptr<Module> Parser::parse()
 {
     m_module = make_unique<Module>("tempMod");
+    parseBlock();
+    //m_module->getMainBlock() = move(parseBlock());
 
-    auto expr = parseExpression();
-    while (expr)
-    {
-        //m_module->mainBlock->expressions.push_back(expr.get());
-        expr = parseExpression();
-    }
     auto module = move(m_module);
     m_module = nullptr;
     return module;
+}
+
+std::unique_ptr<Block> Parser::parseBlock()
+{
+    std::unique_ptr<Block> block;
+    //auto& expressions = block.getExpressions();
+    auto expr = parseExpression();
+    while (expr)
+    {
+        //expressions.push_back(move(expr));
+        expr = parseExpression();
+    }
+
+    return block;
 }
 
 unique_ptr<Expr> Parser::parseExpression()
@@ -135,9 +145,7 @@ unique_ptr<Expr> Parser::parseFunctionDefinition()
             //consumeToken();
         }
     }
-    vector<unique_ptr<Expr>> expressions;
-    unique_ptr<Expr> expr(new Function(move(name), move(parameters), move(expressions)));
-    return expr;
+    return unique_ptr<Expr>(new Function(move(name), move(parameters)));
 }
 
 unique_ptr<Expr> Parser::parseParenExpression()
