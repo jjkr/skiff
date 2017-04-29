@@ -17,3 +17,5 @@ add_library(skiff
 #target_link_libraries(skc skiff ${SYSTEM_LIBRARIES})
 add_executable(ski ski.cpp)
 target_link_libraries(ski skiff ${SYSTEM_LIBRARIES})
+add_executable(hello_llvm hello_llvm.cpp)
+target_link_libraries(hello_llvm skiff ${SYSTEM_LIBRARIES})
