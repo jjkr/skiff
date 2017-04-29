@@ -74,8 +74,9 @@ unique_ptr<Expr> Parser::parsePrimaryExpr()
         case TokenType::OPEN_PAREN:
             return parseParenExpression();
         case TokenType::FN:
-            logi << "parsing function";
             return parseFunctionDefinition();
+        case TokenType::LET:
+            return parseLetExpression();
         default:
             return nullptr;
     }
@@ -185,6 +186,16 @@ unique_ptr<Expr> Parser::parseParenExpression()
     }
     consumeToken(); // CLOSE_PAREN token
     return expr;
+}
+
+unique_ptr<Expr> Parser::parseLetExpression()
+{
+    consumeToken(); // LET token
+    auto id = parseIdentifier();
+    if (m_tok.getType() != TokenType::EQUALS)
+    {
+        throw runtime_error("Expected EQUALS token");
+    }
 }
 
 void Parser::consumeToken()

@@ -7,7 +7,7 @@ struct Pair
 int addFive(int x)
 {
     int result = x + 5;
-    return x;
+    return result;
 }
 
 int main(int argc, char** argv)

@@ -11,7 +11,7 @@ define i32 @addFive(i32) #0 {
   %4 = load i32, i32* %2, align 4
   %5 = add nsw i32 %4, 5
   store i32 %5, i32* %3, align 4
-  %6 = load i32, i32* %2, align 4
+  %6 = load i32, i32* %3, align 4
   ret i32 %6
 }
 

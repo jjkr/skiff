@@ -16,6 +16,7 @@ enum class TokenType
     COMMENT,
 
     FN,
+    LET,
     IF,
     ELSE,
     FOR,
@@ -25,6 +26,7 @@ enum class TokenType
     TIMES,
     DIV,
     MINUS,
+    EQUALS,
 
     OPEN_PAREN,
     CLOSE_PAREN,

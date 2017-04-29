@@ -19,6 +19,7 @@ using sk::Token;
 using sk::TokenType;
 const unordered_map<string, TokenType> keywords = {
     {"fn", TokenType::FN},
+    {"let", TokenType::LET},
     {"if", TokenType::IF},
     {"else", TokenType::ELSE},
     {"for", TokenType::FOR},
@@ -140,6 +141,9 @@ Token Lexer::takeToken()
         case '-':
             return makeToken(TokenType::MINUS);
 
+        case '=':
+            return makeToken(TokenType::EQUALS);
+
         // Integer constants
         case '0' ... '9':
         {
@@ -219,6 +223,9 @@ ostream& operator<<(ostream& os, TokenType tokenType)
         case TokenType::FN:
             os << "FN";
             break;
+        case TokenType::LET:
+            os << "LET";
+            break;
         case TokenType::IF:
             os << "IF";
             break;
@@ -242,6 +249,9 @@ ostream& operator<<(ostream& os, TokenType tokenType)
             break;
         case TokenType::DIV:
             os << "DIV";
+            break;
+        case TokenType::EQUALS:
+            os << "EQUALS";
             break;
         case TokenType::OPEN_PAREN:
             os << "OPEN_PAREN";

@@ -22,18 +22,19 @@ using std::vector;
 
 namespace sk
 {
-CodeGen::CodeGen(string_view sourceFile) : m_irBuilder(m_llvmContext),
-                                           m_module(new llvm::Module(
-                                               llvm::StringRef(sourceFile.data(),
-                                                               sourceFile.size()),
-                                               m_llvmContext)) {}
+CodeGen::CodeGen(string_view sourceFile)
+    : m_irBuilder(m_llvmContext),
+      m_module(
+          new llvm::Module(llvm::StringRef(sourceFile.data(), sourceFile.size()), m_llvmContext))
+{
+}
 
 void CodeGen::visit(Module& module)
 {
     logi << "Codegen::visit module";
-    vector<llvm::Type*> parameterList = {llvm::Type::getInt32Ty(m_llvmContext),
-                                         llvm::PointerType::get(
-                                             llvm::Type::getInt8PtrTy(m_llvmContext), 0)};
+    vector<llvm::Type*> parameterList = {
+        llvm::Type::getInt32Ty(m_llvmContext),
+        llvm::PointerType::get(llvm::Type::getInt8PtrTy(m_llvmContext), 0)};
     auto funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(m_llvmContext),
                                             move(parameterList), false);
     auto llvmFunc = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "main",

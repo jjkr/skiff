@@ -86,3 +86,15 @@ TEST(Lexer, lexesComments)
     EXPECT_EQ(TokenType::COMMENT, lexer.takeToken().getType());
     EXPECT_EQ(TokenType::END_OF_INPUT, lexer.takeToken().getType());
 }
+
+TEST(Lexer, lexesLet)
+{
+    Lexer lexer("let x = 5");
+    EXPECT_EQ(TokenType::LET, lexer.takeToken().getType());
+    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
+    EXPECT_EQ(TokenType::IDENTIFIER, lexer.takeToken().getType());
+    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
+    EXPECT_EQ(TokenType::EQUALS, lexer.takeToken().getType());
+    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
+    EXPECT_EQ(TokenType::NUMBER, lexer.takeToken().getType());
+}

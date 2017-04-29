@@ -122,4 +122,15 @@ private:
     std::vector<std::unique_ptr<Expr>> m_arguments;
 };
 
+class LetExpr : public Expr
+{
+public:
+    LetExpr(std::unique_ptr<Expr>&& id, std::unique_ptr<Expr>&& expr);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+private:
+    std::unique_ptr<Expr> m_identifier;
+    std::unique_ptr<Expr> m_expr;
+};
+
 }
