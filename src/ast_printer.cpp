@@ -17,16 +17,16 @@ void AstPrinter::visit(Module& module)
 
 void AstPrinter::visit(Block& block)
 {
-    indent();
-    ++m_depth;
-    m_out << "Block {\n";
+    //indent();
+    //++m_depth;
+    //m_out << "Block {\n";
     for (auto&& expr: block.getExpressions())
     {
         dispatch(*expr);
     }
-    --m_depth;
-    indent();
-    m_out << "}\n";
+    //--m_depth;
+    //indent();
+    //m_out << "}\n";
 }
 
 void AstPrinter::visit(Expr& expr)
@@ -53,6 +53,7 @@ void AstPrinter::visit(Function& func)
         m_out << arg;
     }
     m_out << ") {\n";
+    dispatch(func.getBlock());
     --m_depth;
     indent();
     m_out << "}\n";

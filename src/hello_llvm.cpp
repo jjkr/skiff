@@ -24,20 +24,20 @@ int main()
 
     auto funcName = "addFive";
 
-    //vector<llvm::Type*> argList = {llvm::Type::getInt32Ty(llvmContext)};
-    //auto funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(llvmContext),
-    //                                        argList, false);
-    //auto func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, funcName,
-    //                                   module.get());
-    //func->args().begin()->setName("x");
+    vector<llvm::Type*> argList = {llvm::Type::getInt32Ty(llvmContext)};
+    auto funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(llvmContext),
+                                            argList, false);
+    auto func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, funcName,
+                                       module.get());
+    func->args().begin()->setName("x");
 
-    //auto bb = llvm::BasicBlock::Create(llvmContext, "entry", func);
-    //irBuilder.SetInsertPoint(bb);
+    auto bb = llvm::BasicBlock::Create(llvmContext, "entry", func);
+    irBuilder.SetInsertPoint(bb);
 
-    //auto fiveLiteral = llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvmContext),
-    //                                          llvm::APInt(32, 5));
-    //auto addExpr = irBuilder.CreateAdd(&*(func->args().begin()), fiveLiteral, "result");
-    //irBuilder.CreateRet(addExpr);
+    auto fiveLiteral = llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvmContext),
+                                              llvm::APInt(32, 5));
+    auto addExpr = irBuilder.CreateAdd(&*(func->args().begin()), fiveLiteral, "result");
+    irBuilder.CreateRet(addExpr);
 
     module->print(llvm::errs(), nullptr);
 }

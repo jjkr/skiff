@@ -1,12 +1,23 @@
 #include "code_gen.hpp"
 #include "util/logger.hpp"
+#include <llvm/ADT/STLExtras.h>
+#include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
+#include <llvm/Support/raw_ostream.h>
+#include <memory>
+#include <utility>
+#include <vector>
 
 using llvm::ConstantInt;
 using llvm::Type;
+using std::move;
+using std::vector;
 
 namespace sk
 {
@@ -16,11 +27,16 @@ CodeGen::CodeGen() : m_irBuilder(m_llvmContext),
 void CodeGen::visit(Module& module)
 {
     logi << "Codegen::visit module";
+    dispatch(module.getMainBlock());
 }
 
 void CodeGen::visit(Block& block)
 {
     logi << "Codegen::visit block";
+    for (auto&& e : block.getExpressions())
+    {
+        dispatch(*e);
+    }
 }
 
 void CodeGen::visit(Expr& expr)
@@ -31,6 +47,30 @@ void CodeGen::visit(Expr& expr)
 void CodeGen::visit(Function& func)
 {
     logi << "Codegen::visit func";
+    vector<llvm::Type*> parameterList;
+    for (auto i = 0; i < func.getParameters().size(); ++i)
+    {
+        parameterList.push_back(llvm::Type::getInt32Ty(m_llvmContext));
+    }
+    auto funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(m_llvmContext),
+                                            move(parameterList), false);
+    auto funcName = func.getName();
+    auto llvmFunc = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage,
+                                           llvm::StringRef(funcName.data(), funcName.size()),
+                                           m_module.get());
+    auto arg = llvmFunc->args().begin();
+    for (auto i = 0; i < func.getParameters().size(); ++i, ++arg)
+    {
+        auto paramName = func.getParameters()[i];
+        arg->setName(llvm::StringRef(paramName.data(), paramName.size()));
+    }
+
+    auto bb = llvm::BasicBlock::Create(m_llvmContext, "entry", llvmFunc);
+    m_irBuilder.SetInsertPoint(bb);
+
+    dispatch(func.getBlock());
+
+    m_irBuilder.CreateRet(m_value);
 }
 
 void CodeGen::visit(Variable& variable)
@@ -47,9 +87,9 @@ void CodeGen::visit(I32Literal& lit)
 void CodeGen::visit(BinaryOp& binOp)
 {
     logi << "Codegen::visit binary op";
-    binOp.getLhs().accept(*this);
+    dispatch(binOp.getLhs());
     auto lhs = m_value;
-    binOp.getRhs().accept(*this);
+    dispatch(binOp.getRhs());
     auto rhs = m_value;
 
     auto opType = binOp.getType();
@@ -70,6 +110,6 @@ void CodeGen::visit(BinaryOp& binOp)
         default:
             loge << "unknown operator: " << opType;
     }
-    //m_value->dump();
+    m_value->dump();
 }
 }

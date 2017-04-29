@@ -14,7 +14,7 @@ public:
 
 private:
     std::unique_ptr<Expr> parseExpression();
-    std::unique_ptr<Block> parseBlock();
+    void parseBlock(Block& block);
     std::unique_ptr<Expr> parsePrimaryExpr();
     std::unique_ptr<Expr> parseParenExpression();
     std::unique_ptr<Expr> parseBinOpRhs(std::unique_ptr<Expr>&& lhs, int minPrecedence);

@@ -24,13 +24,30 @@ Parser::Parser(Module& module, Lexer& lexer) : m_module(module), m_lexer(lexer),
 
 void Parser::parse()
 {
-    auto& expressions = m_module.getMainBlock().getExpressions();
+    parseBlock(m_module.getMainBlock());
+}
+
+void Parser::parseBlock(Block& block)
+{
+    auto& expressions = block.getExpressions();
+    auto hasBrace = m_tok.getType() == TokenType::OPEN_BRACE;
+    if (hasBrace)
+    {
+        consumeToken();
+    }
     auto expr = parseExpression();
     while (expr)
     {
         expressions.push_back(move(expr));
-        //expr.reset(nullptr);
         expr = parseExpression();
+    }
+    if (hasBrace)
+    {
+        if (m_tok.getType() != TokenType::CLOSE_BRACE) {
+            loge << "Unexpected token " << m_tok << ", expected CLOSE_BRACE";
+            throw runtime_error("Unexpected token");
+        }
+        consumeToken();
     }
 }
 
@@ -123,16 +140,34 @@ unique_ptr<Expr> Parser::parseFunctionDefinition()
     if (m_tok.getType() == TokenType::OPEN_PAREN)
     {
         consumeToken(); // ( token
-        while (m_tok.getType() != TokenType::CLOSE_PAREN)
+        if (m_tok.getType() != TokenType::CLOSE_PAREN)
         {
-            if (m_tok.getType() != TokenType::COMMA)
+            while (true)
             {
+                if (m_tok.getType() != TokenType::IDENTIFIER)
+                {
+                    loge << "Unexpected token " << m_tok << ", expected IDENTIFIER";
+                    throw runtime_error("Unexpected token");
+                }
                 parameters.push_back(m_tok.getStr());
+                consumeToken();
+                if (m_tok.getType() == TokenType::CLOSE_PAREN)
+                {
+                    consumeToken();
+                    break;
+                }
+                if (m_tok.getType() != TokenType::COMMA)
+                {
+                    loge << "Unexpected token " << m_tok << ", expected COMMA";
+                    throw runtime_error("Unexpected token");
+                }
+                consumeToken();
             }
-            consumeToken();
         }
     }
-    return unique_ptr<Expr>(new Function(name, move(parameters)));
+    auto func = std::make_unique<Function>(name, move(parameters));
+    parseBlock(func->getBlock());
+    return unique_ptr<Expr>(move(func));
 }
 
 unique_ptr<Expr> Parser::parseParenExpression()
