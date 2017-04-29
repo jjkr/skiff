@@ -13,7 +13,15 @@ class Expr;
 class Variable;
 class I32Literal;
 class BinaryOp;
-using AstVisitor = Visitor<Module, Expr, Variable, I32Literal, BinaryOp>;
+class AstVisitor
+{
+public:
+    virtual void visit(Module& module) = 0;
+    virtual void visit(Expr& expr) = 0;
+    virtual void visit(Variable& var) = 0;
+    virtual void visit(I32Literal& literal) = 0;
+    virtual void visit(BinaryOp& op) = 0;
+};
 
 class AstNode : public Visitable<AstVisitor>
 {
@@ -67,15 +75,15 @@ private:
 class BinaryOp : public Expr
 {
 public:
-    BinaryOp(Token::Kind kind, std::unique_ptr<Expr>&& lhs, std::unique_ptr<Expr>&& rhs);
+    BinaryOp(TokenType kind, std::unique_ptr<Expr>&& lhs, std::unique_ptr<Expr>&& rhs);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    Token::Kind getKind() const { return m_kind; }
+    TokenType getType() const { return m_type; }
     std::unique_ptr<Expr>& getLhs() { return m_lhs; }
     std::unique_ptr<Expr>& getRhs() { return m_rhs; }
 
 private:
-    Token::Kind m_kind;
+    TokenType m_type;
     std::unique_ptr<Expr> m_lhs;
     std::unique_ptr<Expr> m_rhs;
 };

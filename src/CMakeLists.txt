@@ -2,12 +2,13 @@ add_library(skiff
         util/logger.hpp
         util/logger.cpp
         util/string_view.hpp
+        util/visitor.hpp
         ast.hpp
         ast.cpp
         ast_printer.hpp
         ast_printer.cpp
-        #code_gen.hpp
-        #code_gen.cpp
+        code_gen.hpp
+        code_gen.cpp
         lexer.hpp
         lexer.cpp
         parser.hpp

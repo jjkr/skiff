@@ -1,16 +1,17 @@
 /**
  * Skiff Compiler
  */
-//#include "code_gen.hpp"
+#include "code_gen.hpp"
 #include "lexer.hpp"
 #include "ast_printer.hpp"
 #include "parser.hpp"
 #include "util/logger.hpp"
+#include <llvm/Support/raw_ostream.h>
 #include <iostream>
 #include <string>
 
 using sk::AstPrinter;
-//using sk::CodeGen;
+using sk::CodeGen;
 using sk::Lexer;
 using sk::Token;
 using sk::Parser;
@@ -27,11 +28,11 @@ int main(int argc, char** argv)
 
     for (string line; getline(cin, line);)
     {
-        //CodeGen codeGen;
+        CodeGen codeGen;
         Lexer lexer(line);
         Parser parser(lexer);
 
-        //cout << "parsing input: " << line << endl;
+        cout << "parsing input: " << line << endl;
         auto expr = parser.parse();
 
         if (expr)
@@ -39,8 +40,8 @@ int main(int argc, char** argv)
             AstPrinter printer(cout);
             expr->accept(printer);
 
-            //expr->accept(codeGen);
-            //cout << &codeGen.getModule() << endl;
+            expr->accept(codeGen);
+            codeGen.getModule().print(llvm::outs(), nullptr);
         }
         cout << "ski> " << flush;
     }

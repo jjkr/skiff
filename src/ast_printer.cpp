@@ -39,7 +39,7 @@ void AstPrinter::visit(I32Literal& i32)
 void AstPrinter::visit(BinaryOp& binOp)
 {
     indent();
-    m_out << "BinaryOp " << binOp.getKind() << " {\n";
+    m_out << "BinaryOp " << binOp.getType() << " {\n";
     ++m_depth;
     binOp.getLhs()->accept(*this);
     binOp.getRhs()-> accept(*this);

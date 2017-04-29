@@ -5,49 +5,56 @@
 
 namespace sk
 {
+enum class TokenType
+{
+    WHITESPACE,
+    NEWLINE,
+    END_OF_INPUT,
+    IDENTIFIER,
+    NUMBER,
+
+    FN,
+    IF,
+    ELSE,
+    FOR,
+    WHILE,
+
+    PLUS,
+    TIMES,
+    DIV,
+    MINUS,
+
+    OPEN_PAREN,
+    CLOSE_PAREN,
+    OPEN_BRACE,
+    CLOSE_BRACE
+};
+
 class Token
 {
 public:
-    enum class Kind
-    {
-        WHITESPACE,
-        NEWLINE,
-        END_OF_INPUT,
-        IDENTIFIER,
-        NUMBER,
-
-        FN,
-        IF,
-        ELSE,
-        FOR,
-        WHILE,
-
-        PLUS,
-        TIMES,
-        DIV,
-        MINUS,
-
-        OPEN_PAREN,
-        CLOSE_PAREN,
-        OPEN_BRACE,
-        CLOSE_BRACE
-    };
     Token() = default;
 
-    Token(Kind kind, string_view str, int line, int col)
-        : kind(kind), str(str), line(line), col(col)
+    Token(TokenType type, string_view str, int line, int col)
+        : m_type(type), m_str(str), m_line(line), m_col(col)
     {
     }
 
-    Kind kind;
-    string_view str;
-    int line;
-    int col;
+    TokenType getType() { return m_type; }
+    string_view getStr() { return m_str; }
+    int getLine() { return m_line; }
+    int getCol() { return m_col; }
 
     bool isKeyword() const;
     bool isWhitespace() const;
+
+private:
+    TokenType m_type;
+    string_view m_str;
+    int m_line;
+    int m_col;
 };
-int getTokenPrecedence(Token::Kind kind);
+int getTokenPrecedence(TokenType kind);
 std::ostream& operator<<(std::ostream& os, Token token);
 
 
@@ -60,7 +67,7 @@ public:
 
 private:
     void takeByte();
-    Token makeToken(Token::Kind kind);
+    Token makeToken(TokenType kind);
 
     string_view m_text;
 
@@ -78,5 +85,5 @@ private:
     char m_nextChar;
 };
 
-std::ostream& operator<<(std::ostream& os, Token::Kind kind);
+std::ostream& operator<<(std::ostream& os, TokenType kind);
 }

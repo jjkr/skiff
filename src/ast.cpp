@@ -10,8 +10,8 @@ namespace sk
 Module::Module(vector<unique_ptr<Expr>>&& expressions) : m_expressions(move(expressions))
 {
 }
-BinaryOp::BinaryOp(Token::Kind kind, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rhs)
-    : m_kind(kind), m_lhs(move(lhs)), m_rhs(move(rhs))
+BinaryOp::BinaryOp(TokenType type, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rhs)
+    : m_type(type), m_lhs(move(lhs)), m_rhs(move(rhs))
 {
 }
 Function::Function(Variable&& name, std::vector<Variable>&& parameters,

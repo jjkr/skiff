@@ -16,7 +16,7 @@ using std::vector;
 
 namespace sk
 {
-Parser::Parser(Lexer& lexer) : m_lexer(lexer), m_tok(Token::Kind::WHITESPACE, "", 0, 0)
+Parser::Parser(Lexer& lexer) : m_lexer(lexer), m_tok(TokenType::WHITESPACE, "", 0, 0)
 {
     consumeToken();
 }
@@ -45,17 +45,17 @@ unique_ptr<Expr> Parser::parseExpression()
 
 unique_ptr<Expr> Parser::parsePrimaryExpr()
 {
-    switch (m_tok.kind)
+    switch (m_tok.getType())
     {
-        case Token::Kind::IDENTIFIER:
+        case TokenType::IDENTIFIER:
             return parseIdentifier();
-        case Token::Kind::NUMBER:
+        case TokenType::NUMBER:
             return parseNumber();
-        case Token::Kind::MINUS:
+        case TokenType::MINUS:
             return parseNegativeNumber();
-        case Token::Kind::OPEN_PAREN:
+        case TokenType::OPEN_PAREN:
             return parseParenExpression();
-        case Token::Kind::FN:
+        case TokenType::FN:
             return parseFunctionDefinition();
         default:
             return nullptr;
@@ -66,7 +66,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
 {
     while (true)
     {
-        auto precedence = getTokenPrecedence(m_tok.kind);
+        auto precedence = getTokenPrecedence(m_tok.getType());
         if (precedence < minPrecedence)
         {
             return move(lhs);
@@ -76,7 +76,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
         consumeToken();
         auto rhs = parsePrimaryExpr();
 
-        auto nextPrecedence = getTokenPrecedence(m_tok.kind);
+        auto nextPrecedence = getTokenPrecedence(m_tok.getType());
         if (precedence < nextPrecedence)
         {
             rhs = parseBinOpRhs(move(rhs), precedence + 1);
@@ -86,13 +86,13 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
             }
         }
 
-        lhs = unique_ptr<Expr>(new BinaryOp(opToken.kind, move(lhs), move(rhs)));
+        lhs = unique_ptr<Expr>(new BinaryOp(opToken.getType(), move(lhs), move(rhs)));
     }
 }
 
 unique_ptr<Expr> Parser::parseIdentifier()
 {
-    unique_ptr<Expr> expr(new Variable(m_tok.str));
+    unique_ptr<Expr> expr(new Variable(m_tok.getStr()));
     consumeToken();
     return expr;
 }
@@ -100,14 +100,14 @@ unique_ptr<Expr> Parser::parseIdentifier()
 unique_ptr<Expr> Parser::parseNegativeNumber()
 {
     consumeToken();
-    unique_ptr<Expr> expr(new I32Literal(-stoi(m_tok.str.to_string())));
+    unique_ptr<Expr> expr(new I32Literal(-stoi(m_tok.getStr().to_string())));
     consumeToken();
     return expr;
 }
 
 unique_ptr<Expr> Parser::parseNumber()
 {
-    unique_ptr<Expr> expr(new I32Literal(stoi(m_tok.str.to_string())));
+    unique_ptr<Expr> expr(new I32Literal(stoi(m_tok.getStr().to_string())));
     consumeToken();
     return expr;
 }
@@ -115,7 +115,7 @@ unique_ptr<Expr> Parser::parseNumber()
 unique_ptr<Expr> Parser::parseFunctionDefinition()
 {
     consumeToken(); // FN token
-    Variable name(m_tok.str);
+    Variable name(m_tok.getStr());
     consumeToken(); // ( token
     vector<Variable> parameters;
     vector<unique_ptr<Expr>> expressions;
@@ -127,7 +127,7 @@ unique_ptr<Expr> Parser::parseParenExpression()
 {
     consumeToken(); // OPEN_PAREN token
     auto expr = parseExpression();
-    if (m_tok.kind != Token::Kind::CLOSE_PAREN) {
+    if (m_tok.getType() != TokenType::CLOSE_PAREN) {
         throw runtime_error("Expected CLOSE_PAREN token");
     }
     consumeToken(); // CLOSE_PAREN token
