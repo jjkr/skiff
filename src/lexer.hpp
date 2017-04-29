@@ -27,7 +27,8 @@ enum class TokenType
     OPEN_PAREN,
     CLOSE_PAREN,
     OPEN_BRACE,
-    CLOSE_BRACE
+    CLOSE_BRACE,
+    COMMA
 };
 
 class Token

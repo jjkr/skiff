@@ -56,6 +56,7 @@ unique_ptr<Expr> Parser::parsePrimaryExpr()
         case TokenType::OPEN_PAREN:
             return parseParenExpression();
         case TokenType::FN:
+            logi << "parsing function";
             return parseFunctionDefinition();
         default:
             return nullptr;
@@ -90,9 +91,9 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
     }
 }
 
-unique_ptr<Expr> Parser::parseIdentifier()
+unique_ptr<Variable> Parser::parseIdentifier()
 {
-    unique_ptr<Expr> expr(new Variable(m_tok.getStr()));
+    auto expr = make_unique<Variable>(m_tok.getStr());
     consumeToken();
     return expr;
 }
@@ -116,8 +117,21 @@ unique_ptr<Expr> Parser::parseFunctionDefinition()
 {
     consumeToken(); // FN token
     Variable name(m_tok.getStr());
-    consumeToken(); // ( token
-    vector<Variable> parameters;
+    consumeToken();
+    vector<unique_ptr<Variable>> parameters;
+    if (m_tok.getType() == TokenType::OPEN_PAREN)
+    {
+        consumeToken(); // ( token
+        while(m_tok.getType() != TokenType::CLOSE_PAREN)
+        {
+            if (m_tok.getType() == TokenType::COMMA) {
+                consumeToken();
+                continue;
+            }
+            parameters.push_back(parseIdentifier());
+            //consumeToken();
+        }
+    }
     vector<unique_ptr<Expr>> expressions;
     unique_ptr<Expr> expr(new Function(move(name), move(parameters), move(expressions)));
     return expr;

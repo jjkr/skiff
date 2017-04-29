@@ -18,9 +18,19 @@ void CodeGen::visit(Module& module)
     logi << "Codegen::visit module";
 }
 
+void CodeGen::visit(Block& block)
+{
+    logi << "Codegen::visit block";
+}
+
 void CodeGen::visit(Expr& expr)
 {
     logi << "Codegen::visit expr";
+}
+
+void CodeGen::visit(Function& func)
+{
+    logi << "Codegen::visit func";
 }
 
 void CodeGen::visit(Variable& variable)

@@ -117,6 +117,9 @@ Token Lexer::takeToken()
         case '}':
             return makeToken(TokenType::CLOSE_BRACE);
 
+        case ',':
+            return makeToken(TokenType::COMMA);
+
         // Operators
         case '+':
             return makeToken(TokenType::PLUS);
@@ -238,6 +241,9 @@ ostream& operator<<(ostream& os, TokenType tokenType)
             break;
         case TokenType::CLOSE_BRACE:
             os << "CLOSE_BRACE";
+            break;
+        case TokenType::COMMA:
+            os << "COMMA";
             break;
     }
 

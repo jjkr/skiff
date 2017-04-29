@@ -18,10 +18,36 @@ void AstPrinter::visit(Module& module)
     m_out << "}\n";
 }
 
+void AstPrinter::visit(Block& block)
+{
+    indent();
+    m_out << "Block\n";
+}
+
 void AstPrinter::visit(Expr& expr)
 {
     indent();
     m_out << "Expr\n";
+}
+
+void AstPrinter::visit(Function& func)
+{
+    indent();
+    m_out << "Function " << func.getName().getName() << "(";
+    auto first = true;
+    for (auto& arg : func.getParameters()) {
+        if (first)
+        {
+            first = false;
+        }
+        else
+        {
+            m_out << ", ";
+        }
+        m_out << arg->getName();
+    }
+    m_out << ")";
+    m_out << "}\n";
 }
 
 void AstPrinter::visit(Variable& var)

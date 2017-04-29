@@ -1,4 +1,5 @@
 #pragma once
+#include "ast_visitor.hpp"
 #include "lexer.hpp"
 #include "util/visitor.hpp"
 #include <cstdint>
@@ -8,26 +9,11 @@
 namespace sk
 {
 
-class Module;
-class Expr;
-class Variable;
-class I32Literal;
-class BinaryOp;
-class AstVisitor
-{
-public:
-    virtual void visit(Module& module) = 0;
-    virtual void visit(Expr& expr) = 0;
-    virtual void visit(Variable& var) = 0;
-    virtual void visit(I32Literal& literal) = 0;
-    virtual void visit(BinaryOp& op) = 0;
-};
-
-class AstNode : public Visitable<AstVisitor>
+class AstNode
 {
 public:
     virtual ~AstNode() {}
-
+    virtual void accept(AstVisitor& visitor) = 0;
 };
 
 class Module : public AstNode
@@ -40,7 +26,14 @@ public:
     std::vector<std::unique_ptr<Expr>>& getExpressions() { return m_expressions; }
 
 private:
+    std::vector<std::unique_ptr<Function>> m_functions;
     std::vector<std::unique_ptr<Expr>> m_expressions;
+};
+
+class Block : AstNode {
+public:
+    Block(std::vector<std::unique_ptr<Expr>>&& expressions);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 };
 
 class Expr : public AstNode
@@ -91,14 +84,16 @@ private:
 class Function : public Expr
 {
 public:
-    Function(Variable&& name, std::vector<Variable>&& parameters, std::vector<std::unique_ptr<Expr>>&& expressions);
+    Function(Variable&& name, std::vector<std::unique_ptr<Variable>>&& parameters, std::vector<std::unique_ptr<Expr>>&& expressions);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    std::vector<Variable>& getParameters() { return m_parameters; }
+    Variable& getName() { return m_name; }
+    std::vector<std::unique_ptr<Variable>>& getParameters() { return m_parameters; }
     std::vector<std::unique_ptr<Expr>>& getExpressions() { return m_expressions; }
 
 private:
     Variable m_name;
-    std::vector<Variable> m_parameters;
+    std::vector<std::unique_ptr<Variable>> m_parameters;
     std::vector<std::unique_ptr<Expr>> m_expressions;
 };
 
