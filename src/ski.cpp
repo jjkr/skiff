@@ -42,7 +42,7 @@ int main(int argc, char** argv)
         printer.dispatch(module);
 
         codeGen.dispatch(module);
-        codeGen.getModule().print(llvm::outs(), nullptr);
+        codeGen.getLlvmModule().print(llvm::outs(), nullptr);
         cout << "ski> " << flush;
     }
 }
