@@ -1,41 +1,48 @@
+#include "ast.hpp"
 #include "parser.hpp"
 #include "lexer.hpp"
 #include <gtest/gtest.h>
 
 using sk::Token;
 using sk::Lexer;
+using sk::Module;
 using sk::Parser;
 
 TEST(Parser, constructs)
 {
     Lexer lexer("");
-    Parser parser(lexer);
+    Module module("");
+    Parser parser(module, lexer);
 }
 
 TEST(Parser, parsesEmpty)
 {
     Lexer lexer("");
-    Parser parser(lexer);
-    auto ast = parser.parse();
+    Module module("");
+    Parser parser(module, lexer);
+    parser.parse();
 }
 
 TEST(Parser, parsesNumber)
 {
     Lexer lexer("23");
-    Parser parser(lexer);
-    auto ast = parser.parse();
+    Module module("");
+    Parser parser(module, lexer);
+    parser.parse();
 }
 
 TEST(Parser, parsesPlusTimes)
 {
     Lexer lexer("23 + 7 * 32");
-    Parser parser(lexer);
-    auto ast = parser.parse();
+    Module module("");
+    Parser parser(module, lexer);
+    parser.parse();
 }
 
 TEST(Parser, parsesFunction)
 {
     Lexer lexer("fn foo(x, y) {}");
-    Parser parser(lexer);
-    auto ast = parser.parse();
+    Module module("");
+    Parser parser(module, lexer);
+    parser.parse();
 }

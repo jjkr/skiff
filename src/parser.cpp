@@ -134,6 +134,11 @@ unique_ptr<Expr> Parser::parseNumber()
 unique_ptr<Expr> Parser::parseFunctionDefinition()
 {
     consumeToken(); // FN token
+    if (m_tok.getType() != TokenType::IDENTIFIER)
+    {
+        loge << "Unexpected token " << m_tok << ", expected IDENTIFIER";
+        throw runtime_error("Unexpected token");
+    }
     auto name = m_tok.getStr();
     consumeToken();
     vector<string_view> parameters;
