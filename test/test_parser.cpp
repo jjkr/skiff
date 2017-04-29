@@ -41,7 +41,7 @@ TEST(Parser, parsesPlusTimes)
 
 TEST(Parser, parsesFunction)
 {
-    Lexer lexer("fn foo(x, y) {}");
+    Lexer lexer("fn foo(x, y) { 4 + 6 }");
     Module module("");
     Parser parser(module, lexer);
     parser.parse();

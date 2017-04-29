@@ -39,7 +39,7 @@ public:
     }
 
     template <typename T>
-    LogStream& operator<<(T& x)
+    LogStream& operator<<(const T& x)
     {
         if (m_os)
         {

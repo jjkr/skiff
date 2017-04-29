@@ -13,6 +13,8 @@ enum class TokenType
     IDENTIFIER,
     NUMBER,
 
+    COMMENT,
+
     FN,
     IF,
     ELSE,

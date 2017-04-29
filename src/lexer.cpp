@@ -107,6 +107,16 @@ Token Lexer::takeToken()
             return makeToken(TokenType::WHITESPACE);
         }
 
+        case '#':
+        {
+            // Single line comments
+            while (m_nextChar != '\r' && m_nextChar != '\n' && m_nextChar != '\0')
+            {
+                takeByte();
+            }
+            return makeToken(TokenType::COMMENT);
+        }
+
         // Parenthesis
         case '(':
             return makeToken(TokenType::OPEN_PAREN);
@@ -199,6 +209,9 @@ ostream& operator<<(ostream& os, TokenType tokenType)
             break;
         case TokenType::IDENTIFIER:
             os << "IDENTIFIER";
+            break;
+        case TokenType::COMMENT:
+            os << "COMMENT";
             break;
         case TokenType::NUMBER:
             os << "NUMBER";

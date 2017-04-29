@@ -79,3 +79,10 @@ TEST(Lexer, lexesFunctionWithParameters)
     EXPECT_EQ(TokenType::OPEN_BRACE, lexer.takeToken().getType());
     EXPECT_EQ(TokenType::CLOSE_BRACE, lexer.takeToken().getType());
 }
+
+TEST(Lexer, lexesComments)
+{
+    Lexer lexer("# here be dragons");
+    EXPECT_EQ(TokenType::COMMENT, lexer.takeToken().getType());
+    EXPECT_EQ(TokenType::END_OF_INPUT, lexer.takeToken().getType());
+}

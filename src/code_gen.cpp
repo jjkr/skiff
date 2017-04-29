@@ -110,6 +110,5 @@ void CodeGen::visit(BinaryOp& binOp)
         default:
             loge << "unknown operator: " << opType;
     }
-    m_value->dump();
 }
 }

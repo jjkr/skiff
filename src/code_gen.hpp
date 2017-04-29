@@ -22,9 +22,7 @@ public:
     void visit(BinaryOp& binOp) override;
 
     llvm::Value* getValue() { return m_value; }
-    llvm::Module& getModule() { return *m_module; }
-
-    void dump() { }
+    llvm::Module& getLlvmModule() { return *m_module; }
 
 private:
     llvm::Value* m_value = nullptr;
