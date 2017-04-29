@@ -21,16 +21,19 @@ Parser::Parser(Lexer& lexer) : m_lexer(lexer), m_tok(TokenType::WHITESPACE, "", 
     consumeToken();
 }
 
-unique_ptr<Module> Parser::parse()
+std::unique_ptr<Module> Parser::parse()
 {
-    vector<unique_ptr<Expr>> exprs;
+    m_module = make_unique<Module>("tempMod");
+
     auto expr = parseExpression();
     while (expr)
     {
-        exprs.push_back(move(expr));
+        //m_module->mainBlock->expressions.push_back(expr.get());
         expr = parseExpression();
     }
-    return make_unique<Module>(move(exprs));
+    auto module = move(m_module);
+    m_module = nullptr;
+    return module;
 }
 
 unique_ptr<Expr> Parser::parseExpression()

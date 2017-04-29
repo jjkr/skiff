@@ -33,14 +33,14 @@ int main(int argc, char** argv)
         Parser parser(lexer);
 
         cout << "parsing input: " << line << endl;
-        auto expr = parser.parse();
+        auto ast = parser.parse();
 
-        if (expr)
+        if (ast)
         {
             AstPrinter printer(cout);
-            expr->accept(printer);
+            ast->accept(printer);
 
-            expr->accept(codeGen);
+            ast->accept(codeGen);
             codeGen.getModule().print(llvm::outs(), nullptr);
         }
         cout << "ski> " << flush;

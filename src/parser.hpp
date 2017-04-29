@@ -24,6 +24,7 @@ private:
 
     void consumeToken();
 
+    std::unique_ptr<Module> m_module = nullptr;
     Lexer& m_lexer;
     Token m_tok;
 };

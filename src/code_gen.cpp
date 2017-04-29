@@ -47,9 +47,9 @@ void CodeGen::visit(I32Literal& lit)
 void CodeGen::visit(BinaryOp& binOp)
 {
     logi << "Codegen::visit binary op";
-    binOp.getLhs()->accept(*this);
+    binOp.getLhs().accept(*this);
     auto lhs = m_value;
-    binOp.getRhs()->accept(*this);
+    binOp.getRhs().accept(*this);
     auto rhs = m_value;
 
     auto opType = binOp.getType();

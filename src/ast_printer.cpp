@@ -8,20 +8,21 @@ AstPrinter::AstPrinter(std::ostream& out) : m_out(out) {}
 void AstPrinter::visit(Module& module)
 {
     indent();
+    module.getMainBlock().accept(*this);
     m_out << "Module {\n";
-    ++m_depth;
-    for (const auto& expr: module.getExpressions())
-    {
-        expr->accept(*this);
-    }
-    --m_depth;
-    m_out << "}\n";
 }
 
 void AstPrinter::visit(Block& block)
 {
     indent();
-    m_out << "Block\n";
+    m_out << "Block {\n";
+    ++m_depth;
+//    for (const auto& expr: block.expressions)
+//    {
+//        expr->accept(*this);
+//    }
+    --m_depth;
+    m_out << "}\n";
 }
 
 void AstPrinter::visit(Expr& expr)
@@ -67,8 +68,8 @@ void AstPrinter::visit(BinaryOp& binOp)
     indent();
     m_out << "BinaryOp " << binOp.getType() << " {\n";
     ++m_depth;
-    binOp.getLhs()->accept(*this);
-    binOp.getRhs()-> accept(*this);
+    binOp.getLhs().accept(*this);
+    binOp.getRhs(). accept(*this);
     --m_depth;
     indent();
     m_out << "}\n";

@@ -3,6 +3,7 @@
 #include "lexer.hpp"
 #include "util/visitor.hpp"
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -13,27 +14,36 @@ class AstNode
 {
 public:
     virtual ~AstNode() {}
-    virtual void accept(AstVisitor& visitor) = 0;
+    virtual void accept(AstVisitor& visitor) {};
+};
+
+class Block : public AstNode
+{
+public:
+    virtual ~Block() {}
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+    //std::map<std::string, Expr*> symbols;
+    //std::vector<std::unique_ptr<Function>> functions;
+
+private:
+    std::vector<std::unique_ptr<Expr>> m_expressions;
 };
 
 class Module : public AstNode
 {
 public:
-    Module(std::vector<std::unique_ptr<Expr>>&& expressions);
+    Module(string_view name);
     virtual ~Module() {}
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    std::vector<std::unique_ptr<Expr>>& getExpressions() { return m_expressions; }
+    string_view getName() const { return m_name; }
+    Block& getMainBlock() { return m_mainBlock; }
+    const Block& getMainBlock() const { return m_mainBlock; }
 
 private:
-    std::vector<std::unique_ptr<Function>> m_functions;
-    std::vector<std::unique_ptr<Expr>> m_expressions;
-};
-
-class Block : AstNode {
-public:
-    Block(std::vector<std::unique_ptr<Expr>>&& expressions);
-    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+    const string_view m_name;
+    Block m_mainBlock;
 };
 
 class Expr : public AstNode
@@ -47,6 +57,7 @@ class Variable : public Expr
 {
 public:
     Variable(string_view name) : m_name(name) {}
+    virtual ~Variable() {}
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     string_view getName() const { return m_name; }
@@ -72,8 +83,8 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     TokenType getType() const { return m_type; }
-    std::unique_ptr<Expr>& getLhs() { return m_lhs; }
-    std::unique_ptr<Expr>& getRhs() { return m_rhs; }
+    Expr& getLhs() { return *m_lhs; }
+    Expr& getRhs() { return *m_rhs; }
 
 private:
     TokenType m_type;

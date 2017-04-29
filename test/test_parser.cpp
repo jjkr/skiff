@@ -32,3 +32,10 @@ TEST(Parser, parsesPlusTimes)
     Parser parser(lexer);
     auto ast = parser.parse();
 }
+
+TEST(Parser, parsesFunction)
+{
+    Lexer lexer("fn foo(x, y) {}");
+    Parser parser(lexer);
+    auto ast = parser.parse();
+}
