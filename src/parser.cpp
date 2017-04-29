@@ -16,34 +16,22 @@ using std::vector;
 
 namespace sk
 {
-Parser::Parser(Lexer& lexer) : m_lexer(lexer), m_tok(TokenType::WHITESPACE, "", 0, 0)
+Parser::Parser(Module& module, Lexer& lexer) : m_module(module), m_lexer(lexer),
+                                               m_tok(TokenType::WHITESPACE, "", 0, 0)
 {
     consumeToken();
 }
 
-std::unique_ptr<Module> Parser::parse()
+void Parser::parse()
 {
-    m_module = make_unique<Module>("tempMod");
-    parseBlock();
-    //m_module->getMainBlock() = move(parseBlock());
-
-    auto module = move(m_module);
-    m_module = nullptr;
-    return module;
-}
-
-std::unique_ptr<Block> Parser::parseBlock()
-{
-    std::unique_ptr<Block> block;
-    //auto& expressions = block.getExpressions();
+    auto& expressions = m_module.getMainBlock().getExpressions();
     auto expr = parseExpression();
     while (expr)
     {
-        //expressions.push_back(move(expr));
+        expressions.push_back(move(expr));
+        //expr.reset(nullptr);
         expr = parseExpression();
     }
-
-    return block;
 }
 
 unique_ptr<Expr> Parser::parseExpression()
@@ -129,30 +117,30 @@ unique_ptr<Expr> Parser::parseNumber()
 unique_ptr<Expr> Parser::parseFunctionDefinition()
 {
     consumeToken(); // FN token
-    Variable name(m_tok.getStr());
+    auto name = m_tok.getStr();
     consumeToken();
-    vector<unique_ptr<Variable>> parameters;
+    vector<string_view> parameters;
     if (m_tok.getType() == TokenType::OPEN_PAREN)
     {
         consumeToken(); // ( token
-        while(m_tok.getType() != TokenType::CLOSE_PAREN)
+        while (m_tok.getType() != TokenType::CLOSE_PAREN)
         {
-            if (m_tok.getType() == TokenType::COMMA) {
-                consumeToken();
-                continue;
+            if (m_tok.getType() != TokenType::COMMA)
+            {
+                parameters.push_back(m_tok.getStr());
             }
-            parameters.push_back(parseIdentifier());
-            //consumeToken();
+            consumeToken();
         }
     }
-    return unique_ptr<Expr>(new Function(move(name), move(parameters)));
+    return unique_ptr<Expr>(new Function(name, move(parameters)));
 }
 
 unique_ptr<Expr> Parser::parseParenExpression()
 {
     consumeToken(); // OPEN_PAREN token
     auto expr = parseExpression();
-    if (m_tok.getType() != TokenType::CLOSE_PAREN) {
+    if (m_tok.getType() != TokenType::CLOSE_PAREN)
+    {
         throw runtime_error("Expected CLOSE_PAREN token");
     }
     consumeToken(); // CLOSE_PAREN token

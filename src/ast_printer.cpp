@@ -8,20 +8,24 @@ AstPrinter::AstPrinter(std::ostream& out) : m_out(out) {}
 void AstPrinter::visit(Module& module)
 {
     indent();
-    module.getMainBlock().accept(*this);
     m_out << "Module {\n";
+    ++m_depth;
+    dispatch(module.getMainBlock());
+    --m_depth;
+    m_out << "}\n";
 }
 
 void AstPrinter::visit(Block& block)
 {
     indent();
-    m_out << "Block {\n";
     ++m_depth;
-//    for (const auto& expr: block.expressions)
-//    {
-//        expr->accept(*this);
-//    }
+    m_out << "Block {\n";
+    for (auto&& expr: block.getExpressions())
+    {
+        dispatch(*expr);
+    }
     --m_depth;
+    indent();
     m_out << "}\n";
 }
 
@@ -34,7 +38,8 @@ void AstPrinter::visit(Expr& expr)
 void AstPrinter::visit(Function& func)
 {
     indent();
-    m_out << "Function " << func.getName().getName() << "(";
+    ++m_depth;
+    m_out << "Function " << func.getName() << "(";
     auto first = true;
     for (auto& arg : func.getParameters()) {
         if (first)
@@ -45,9 +50,11 @@ void AstPrinter::visit(Function& func)
         {
             m_out << ", ";
         }
-        m_out << arg->getName();
+        m_out << arg;
     }
-    m_out << ")";
+    m_out << ") {\n";
+    --m_depth;
+    indent();
     m_out << "}\n";
 }
 

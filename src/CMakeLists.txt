@@ -7,6 +7,7 @@ add_library(skiff
         ast.cpp
         ast_printer.hpp
         ast_printer.cpp
+        ast_visitor.cpp
         ast_visitor.hpp
         code_gen.hpp
         code_gen.cpp

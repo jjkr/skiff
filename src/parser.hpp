@@ -8,9 +8,9 @@ namespace sk
 class Parser
 {
 public:
-    Parser(Lexer& lexer);
+    Parser(Module& module, Lexer& lexer);
 
-    std::unique_ptr<Module> parse();
+    void parse();
 
 private:
     std::unique_ptr<Expr> parseExpression();
@@ -25,7 +25,7 @@ private:
 
     void consumeToken();
 
-    std::unique_ptr<Module> m_module = nullptr;
+    Module& m_module;
     Lexer& m_lexer;
     Token m_tok;
 };

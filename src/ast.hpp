@@ -39,13 +39,12 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     string_view getName() const { return m_name; }
-    void setMainBlock(std::unique_ptr<Block>&& block) { m_mainBlock = move(block); }
-    Block& getMainBlock() { return *m_mainBlock; }
-    const Block& getMainBlock() const { return *m_mainBlock; }
+    Block& getMainBlock() { return m_mainBlock; }
+    const Block& getMainBlock() const { return m_mainBlock; }
 
 private:
     const string_view m_name;
-    std::unique_ptr<Block> m_mainBlock;
+    Block m_mainBlock;
 };
 
 class Expr : public AstNode
@@ -97,16 +96,16 @@ private:
 class Function : public Expr
 {
 public:
-    Function(Variable&& name, std::vector<std::unique_ptr<Variable>>&& parameters);
+    Function(string_view name, std::vector<string_view>&& parameters);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    Variable& getName() { return m_name; }
-    std::vector<std::unique_ptr<Variable>>& getParameters() { return m_parameters; }
+    string_view getName() const { return m_name; }
+    std::vector<string_view>& getParameters() { return m_parameters; }
     Block& getBlock() { return m_block; }
 
 private:
-    Variable m_name;
-    std::vector<std::unique_ptr<Variable>> m_parameters;
+    const string_view m_name;
+    std::vector<string_view> m_parameters;
     Block m_block;
 };
 
