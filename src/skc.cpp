@@ -42,13 +42,12 @@ char FILE_BUFFER[FILE_BUFFER_SIZE];
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        cout << "USAGE: skc file.sk" << endl;
+        cout << "USAGE: skc [-s] file.sk" << endl;
         return 1;
     }
 
-    auto inFilename = string(argv[1]);
-    auto outFilename = regex_replace(inFilename, regex("sk$"), "ll");
-    auto inFile = fopen(argv[1], "r");
+    auto inFilename = string(argv[argc - 1]);
+    auto inFile = fopen(argv[argc - 1], "r");
 
     if (!inFile)
     {
@@ -64,7 +63,7 @@ int main(int argc, char** argv)
 
     CodeGen codeGen;
     Lexer lexer({FILE_BUFFER, bytesRead});
-    Module module({outFilename.data(), outFilename.size() - 3});
+    Module module({inFilename.data(), inFilename.size() - 3});
     Parser parser(module, lexer);
 
     parser.parse();
@@ -74,50 +73,68 @@ int main(int argc, char** argv)
 
     codeGen.dispatch(module);
 
-    // Write .o files
-    auto objFilename = regex_replace(inFilename, regex("sk$"), "o");
-
-    std::error_code err;
-    llvm::raw_fd_ostream outFile(objFilename, err, llvm::sys::fs::F_RW);
-    if (err)
+    if (argc > 2)
     {
-        loge << "Failed to open file: " << err.message();
+        // Write .o files
+        auto objFilename = regex_replace(inFilename, regex("sk$"), "o");
+
+        std::error_code err;
+        llvm::raw_fd_ostream outFile(objFilename, err, llvm::sys::fs::F_RW);
+        if (err)
+        {
+            loge << "Failed to open file: " << err.message();
+            return 1;
+        }
+
+        auto targetTriple = llvm::sys::getDefaultTargetTriple();
+        llvm::InitializeAllTargetInfos();
+        llvm::InitializeAllTargets();
+        llvm::InitializeAllTargetMCs();
+        llvm::InitializeAllAsmParsers();
+        llvm::InitializeAllAsmPrinters();
+
+        string targetLookupError;
+        auto target = llvm::TargetRegistry::lookupTarget(targetTriple, targetLookupError);
+        if (!target)
+        {
+            loge << targetLookupError;
+            return 1;
+        }
+
+        auto CPU = "generic";
+        auto Features = "";
+
+        llvm::TargetOptions options;
+        auto rm = llvm::Optional<llvm::Reloc::Model>();
+        auto targetMachine = target->createTargetMachine(targetTriple, CPU, Features, options, rm);
+
+        codeGen.getLlvmModule().setDataLayout(targetMachine->createDataLayout());
+        codeGen.getLlvmModule().setTargetTriple(targetTriple);
+
+        llvm::legacy::PassManager pass;
+        auto fileType = llvm::TargetMachine::CGFT_ObjectFile;
+
+        if (targetMachine->addPassesToEmitFile(pass, outFile, fileType))
+        {
+            loge << "TargetMachine can't emit a file of this type";
+            return 1;
+        }
+
+        pass.run(codeGen.getLlvmModule());
+        outFile.flush();
     }
-
-    auto targetTriple = llvm::sys::getDefaultTargetTriple();
-    llvm::InitializeAllTargetInfos();
-    llvm::InitializeAllTargets();
-    llvm::InitializeAllTargetMCs();
-    llvm::InitializeAllAsmParsers();
-    llvm::InitializeAllAsmPrinters();
-
-    string targetLookupError;
-    auto target = llvm::TargetRegistry::lookupTarget(targetTriple, targetLookupError);
-    if (!target)
+    else
     {
-        loge << targetLookupError;
-        return 1;
+        auto outFilename = regex_replace(inFilename, regex("sk$"), "ll");
+
+        std::error_code err;
+        llvm::raw_fd_ostream outFile(outFilename, err, llvm::sys::fs::F_RW);
+        if (err)
+        {
+            loge << "Failed to open file: " << err.message();
+            return 1;
+        }
+
+        codeGen.getLlvmModule().print(outFile, nullptr);
     }
-
-    auto CPU = "generic";
-    auto Features = "";
-
-    llvm::TargetOptions options;
-    auto rm = llvm::Optional<llvm::Reloc::Model>();
-    auto targetMachine = target->createTargetMachine(targetTriple, CPU, Features, options, rm);
-
-    codeGen.getLlvmModule().setDataLayout(targetMachine->createDataLayout());
-    codeGen.getLlvmModule().setTargetTriple(targetTriple);
-
-    llvm::legacy::PassManager pass;
-    auto fileType = llvm::TargetMachine::CGFT_ObjectFile;
-
-    if (targetMachine->addPassesToEmitFile(pass, outFile, fileType)) {
-        loge << "TargetMachine can't emit a file of this type";
-        return 1;
-    }
-
-    pass.run(codeGen.getLlvmModule());
-    outFile.flush();
-
 }
