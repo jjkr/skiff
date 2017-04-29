@@ -9,6 +9,7 @@ public:
     AstPrinter(std::ostream& out);
     void visit(Module& module) override;
     void visit(Block& block) override;
+    void visit(LetExpr& expr) override;
     void visit(Expr& expr) override;
     void visit(Function& function) override;
     void visit(Variable& variable) override;

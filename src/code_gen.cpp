@@ -58,6 +58,11 @@ void CodeGen::visit(Block& block)
     }
 }
 
+void CodeGen::visit(LetExpr& expr)
+{
+    logi << "Codegen::visit let";
+}
+
 void CodeGen::visit(Expr& expr)
 {
     logi << "Codegen::visit expr";

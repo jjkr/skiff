@@ -61,7 +61,6 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    CodeGen codeGen(inFilename);
     Lexer lexer({FILE_BUFFER, bytesRead});
     Module module({inFilename.data(), inFilename.size() - 3});
     Parser parser(module, lexer);
@@ -71,6 +70,7 @@ int main(int argc, char** argv)
     AstPrinter printer(cout);
     printer.dispatch(module);
 
+    CodeGen codeGen(inFilename);
     codeGen.dispatch(module);
 
     if (argc > 2)

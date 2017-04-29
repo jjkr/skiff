@@ -24,4 +24,9 @@ Function::Function(string_view name, std::vector<string_view>&& parameters)
     : m_name(name), m_parameters(move(parameters)), m_block("entry")
 {
 }
+
+LetExpr::LetExpr(unique_ptr<Expr>&& id, unique_ptr<Expr>&& expr)
+    : m_identifier(move(id)), m_expr(move(expr))
+{
+}
 }

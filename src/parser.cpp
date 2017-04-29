@@ -196,6 +196,10 @@ unique_ptr<Expr> Parser::parseLetExpression()
     {
         throw runtime_error("Expected EQUALS token");
     }
+    consumeToken(); // EQUALS token
+    auto expr = parseExpression();
+
+    return unique_ptr<Expr>(new LetExpr(move(id), move(expr)));
 }
 
 void Parser::consumeToken()

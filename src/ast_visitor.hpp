@@ -5,6 +5,7 @@ namespace sk
 
 class AstNode;
 class Block;
+class LetExpr;
 class Module;
 class Expr;
 class Function;
@@ -18,6 +19,7 @@ public:
     virtual void visit(Module& module) = 0;
     virtual void visit(Expr& expr) = 0;
     virtual void visit(Block& block) = 0;
+    virtual void visit(LetExpr& expr) = 0;
     virtual void visit(Function& expr) = 0;
     virtual void visit(Variable& var) = 0;
     virtual void visit(I32Literal& literal) = 0;

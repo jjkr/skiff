@@ -7,6 +7,7 @@ set_source_files_properties(${GTEST_DIR}/src/gtest-all.cc PROPERTIES COMPILE_FLA
 set(TESTS
     lexer
     parser
+    source
     )
 
 set(LIBS

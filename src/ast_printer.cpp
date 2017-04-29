@@ -29,6 +29,18 @@ void AstPrinter::visit(Block& block)
     //m_out << "}\n";
 }
 
+void AstPrinter::visit(LetExpr& expr)
+{
+    indent();
+    m_out << "Let {\n";
+    ++m_depth;
+    dispatch(expr.getIdentifier());
+    dispatch(expr.getExpr());
+    --m_depth;
+    indent();
+    m_out << "}\n";
+}
+
 void AstPrinter::visit(Expr& expr)
 {
     indent();

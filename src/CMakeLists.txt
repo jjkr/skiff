@@ -15,6 +15,8 @@ add_library(skiff
         lexer.cpp
         parser.hpp
         parser.cpp
+        source.hpp
+        source.cpp
         )
 add_executable(skc skc.cpp)
 target_link_libraries(skc skiff ${SYSTEM_LIBRARIES})

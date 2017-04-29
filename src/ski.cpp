@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
     for (string line; getline(cin, line);)
     {
-        CodeGen codeGen;
+        CodeGen codeGen("ski");
         Lexer lexer(line);
         Module module("ski");
         Parser parser(module, lexer);
