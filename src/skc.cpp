@@ -18,6 +18,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    //sk::setLogSeverity(sk::LogSeverity::WARN);
+
     auto* inFilename = argv[argc - 1];
     Compiler compiler(inFilename);
 

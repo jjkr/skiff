@@ -127,8 +127,7 @@ string_view SourceBuffer::getString(size_t byteOffset, size_t sz)
             copy(lastBase, lastBase + lastOffset.offset + 1, coalescedIter);
 
             string_view newString(coalesced.data(), coalesced.size());
-            //m_coalesceMap[key] = newString;
-            //m_coalesceMap.insert(make_pair(key, newString));
+            m_coalesceMap.insert(make_pair(key, newString));
             m_coalesceOwners.push_back(move(coalesced));
             return newString;
         }
