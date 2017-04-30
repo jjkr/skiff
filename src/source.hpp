@@ -1,6 +1,7 @@
 #pragma once
 #include "util/string_view.hpp"
 #include <cassert>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -9,15 +10,35 @@ namespace sk
 /**
  * SourceBuffer
  *
- * Owns all of the in memory source information
+ * Owns utf8 in-memory source data. Maintains a sequence of memory blocks of variable size.
  */
 class SourceBuffer
 {
 public:
+    /**
+     * Constructs a SourceBuffer with a copy of the input string
+     */
+    static std::unique_ptr<SourceBuffer> fromSourceStr(string_view src);
+
+    static constexpr auto DEFAULT_BLOCK_SIZE = 4 << 10;
+    std::vector<char>& makeBlock(size_t size = DEFAULT_BLOCK_SIZE);
+    void addBlock(std::vector<char>&& block);
+    void addBlock(string_view s);
+
+    std::vector<std::vector<char>>& getBlocks() { return m_blocks; }
+
+    size_t size() const { return m_totalSize; }
+
+    char getChar(size_t byteOffset) const;
+    string_view getString(size_t byteOffset, size_t size) const;
+
+
+
+    // Iterator
     template <typename Char>
     class Iterator {
     public:
-        Iterator(std::vector<std::vector<char>>& blocks, int blockOffset = 0)
+        Iterator(const std::vector<std::vector<char>>& blocks, size_t blockOffset = 0)
             : m_blocks(&blocks), m_blockOffset(blockOffset)
         {
         }
@@ -25,7 +46,8 @@ public:
         Iterator& operator++()
         {
             ++m_byteOffset;
-            if (m_byteOffset == m_blocks[m_blockOffset].size())
+            auto currentBlockSize = (*m_blocks)[m_blockOffset].size();
+            if (m_byteOffset == currentBlockSize)
             {
                 ++m_blockOffset;
                 m_byteOffset = 0;
@@ -44,7 +66,7 @@ public:
                    m_byteOffset == other.m_byteOffset;
         }
         bool operator!=(Iterator other) const { return !(*this == other); }
-        Char operator*() {return (*m_blocks)[m_blockOffset][m_byteOffset];}
+        char operator*() {return (*m_blocks)[m_blockOffset][m_byteOffset];}
         // iterator traits
         using difference_type = std::ptrdiff_t;
         using value_type = Char;
@@ -53,28 +75,16 @@ public:
         using iterator_category = std::forward_iterator_tag;
 
     private:
-        std::vector<std::vector<char>>* m_blocks = nullptr;
+        const std::vector<std::vector<char>>* m_blocks;
         size_t m_blockOffset;
         size_t m_byteOffset = 0;
     };
     using iterator = Iterator<char>;
     iterator begin() { return iterator(m_blocks); }
-    iterator end() { return iterator(m_blocks); }
+    iterator end() { return iterator(m_blocks, m_blocks.size()); }
     using const_iterator = Iterator<const char>;
-    const_iterator cbegin() { return const_iterator(m_blocks); }
-    const_iterator cend() { return const_iterator(m_blocks); }
-
-    static constexpr auto DEFAULT_BLOCK_SIZE = 4 << 10;
-    std::vector<char>& makeBlock(size_t size = DEFAULT_BLOCK_SIZE);
-    void addBlock(std::vector<char>&& block);
-    void addBlock(const std::string& s);
-
-    std::vector<std::vector<char>>& getBlocks() { return m_blocks; }
-
-    size_t getTotalSize() { return m_totalSize; }
-
-    char getChar(size_t byteOffset);
-    string_view getString(size_t byteOffset, size_t size);
+    const_iterator cbegin() const { return const_iterator(m_blocks); }
+    const_iterator cend() const { return const_iterator(m_blocks, m_blocks.size()); }
 
 private:
     struct BlockAndOffset
@@ -82,11 +92,13 @@ private:
         size_t block;
         size_t offset;
     };
-    BlockAndOffset byteToBlockOffset(size_t byteOffset);
+    BlockAndOffset byteToBlockOffset(size_t byteOffset) const;
 
     size_t m_totalSize = 0;
-    std::vector<size_t> m_newLineOffsets;
+    //std::vector<size_t> m_newLineOffsets;
     std::vector<std::vector<char>> m_blocks;
-    std::vector<std::vector<char>> m_coalesceBlocks;
+    //std::vector<std::vector<char>> m_coalesceBlocks;
 };
+
+
 }

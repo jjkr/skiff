@@ -1,7 +1,10 @@
 #include "source.hpp"
+#include <algorithm>
 #include <stdexcept>
 #include <utility>
 
+using std::copy;
+using std::make_unique;
 using std::move;
 using std::runtime_error;
 using std::string;
@@ -9,6 +12,13 @@ using std::vector;
 
 namespace sk
 {
+std::unique_ptr<SourceBuffer> SourceBuffer::fromSourceStr(string_view src)
+{
+    auto buffer = make_unique<SourceBuffer>();
+    buffer->addBlock(src);
+    return buffer;
+}
+
 std::vector<char>& SourceBuffer::makeBlock(size_t size)
 {
     m_blocks.emplace_back(size);
@@ -18,38 +28,51 @@ std::vector<char>& SourceBuffer::makeBlock(size_t size)
 
 void SourceBuffer::addBlock(vector<char>&& block)
 {
+    if (block.empty())
+    {
+        return;
+    }
     m_totalSize += block.size();
     m_blocks.push_back(move(block));
 }
 
-void SourceBuffer::addBlock(const std::string& s)
+void SourceBuffer::addBlock(string_view s)
 {
-    vector<char> block(s.begin(), s.end());
+    if (s.empty())
+    {
+        return;
+    }
+    vector<char> block(s.size());
+    copy(s.cbegin(), s.cend(), block.begin());
     m_totalSize += block.size();
     m_blocks.push_back(move(block));
 }
 
-char SourceBuffer::getChar(size_t byteOffset)
+char SourceBuffer::getChar(size_t byteOffset) const
 {
     auto blockOffset = byteToBlockOffset(byteOffset);
     return m_blocks[blockOffset.block][blockOffset.offset];
 }
 
-string_view SourceBuffer::getString(size_t byteOffset, size_t size)
+string_view SourceBuffer::getString(size_t byteOffset, size_t sz) const
 {
-    if (byteOffset + size > getTotalSize())
+    if (sz == 0u)
+    {
+        return string_view();
+    }
+    if (byteOffset + sz > size())
     {
         return string_view();
     }
     auto firstBlock = byteToBlockOffset(byteOffset);
-    auto lastBlock = byteToBlockOffset(byteOffset + size);
+    auto lastBlock = byteToBlockOffset(byteOffset + sz - 1);
     if (firstBlock.block == lastBlock.block)
     {
-        return string_view(m_blocks[firstBlock.block].data() + firstBlock.offset, size);
+        return string_view(m_blocks[firstBlock.block].data() + firstBlock.offset, sz);
     }
 }
 
-SourceBuffer::BlockAndOffset SourceBuffer::byteToBlockOffset(size_t byteOffset)
+SourceBuffer::BlockAndOffset SourceBuffer::byteToBlockOffset(size_t byteOffset) const
 {
     for (auto i = 0ul; i < m_blocks.size(); ++i) {
         auto& b = m_blocks[i];

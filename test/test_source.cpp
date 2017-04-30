@@ -29,7 +29,7 @@ TEST(SourceBuffer, addsBlock)
     auto size = 12ul;
     vector<char> newBlock(size, '!');
     buffer.addBlock(move(newBlock));
-    EXPECT_EQ(size, buffer.getTotalSize());
+    EXPECT_EQ(size, buffer.size());
 }
 
 TEST(SourceBuffer, addsString)
@@ -37,7 +37,7 @@ TEST(SourceBuffer, addsString)
     SourceBuffer buffer;
     string s("foobar");
     buffer.addBlock(s);
-    EXPECT_EQ(s.size(), buffer.getTotalSize());
+    EXPECT_EQ(s.size(), buffer.size());
 }
 
 TEST(SourceBuffer, iterates)
@@ -47,4 +47,20 @@ TEST(SourceBuffer, iterates)
     buffer.addBlock(s);
     EXPECT_TRUE(equal(buffer.begin(), buffer.end(), s.begin()));
     EXPECT_TRUE(equal(buffer.cbegin(), buffer.cend(), s.cbegin()));
+}
+
+TEST(SourceBuffer, getChar)
+{
+    SourceBuffer buffer;
+    string s("foobar");
+    buffer.addBlock(s);
+    EXPECT_EQ('o', buffer.getChar(2));
+}
+
+TEST(SourceBuffer, getString)
+{
+    SourceBuffer buffer;
+    string s("The quick brown fox jumped over the lazy dogs");
+    buffer.addBlock(s);
+    EXPECT_EQ("quick", buffer.getString(4, 5));
 }

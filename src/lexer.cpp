@@ -2,6 +2,7 @@
 #include "util/logger.hpp"
 #include <sstream>
 #include <stdexcept>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -17,7 +18,8 @@ namespace
 {
 using sk::Token;
 using sk::TokenType;
-const unordered_map<string, TokenType> keywords = {
+using sk::string_view;
+const unordered_map<string_view, TokenType> keywords = {
     {"fn", TokenType::FN},
     {"let", TokenType::LET},
     {"if", TokenType::IF},
@@ -26,7 +28,7 @@ const unordered_map<string, TokenType> keywords = {
     {"while", TokenType::WHILE}
 };
 
-TokenType identifierType(const string& id)
+TokenType identifierType(string_view id)
 {
     const auto keyword = keywords.find(id);
     return keyword == keywords.cend() ? TokenType::IDENTIFIER : keyword->second;
@@ -62,20 +64,31 @@ int getTokenPrecedence(TokenType tokenType)
     }
 }
 
-Lexer::Lexer(string_view text) noexcept : m_text(text), m_tokStart(&text[0])
+Lexer::Lexer(string_view sourceStr) noexcept
+    : m_bufferOwner(SourceBuffer::fromSourceStr(sourceStr)),
+      m_sourceBuffer(*m_bufferOwner),
+      m_sourceIter(m_sourceBuffer.cbegin())
 {
-
-    //logger.debug().write(&text[0], text.size());
-
-    if (m_text.size() > 0)
+    if (m_sourceIter != m_sourceBuffer.cend())
     {
-        m_nextChar = m_text[0];
+        m_nextChar = *m_sourceIter;
+    }
+}
+
+Lexer::Lexer(const SourceBuffer& buffer) noexcept
+    : m_bufferOwner(nullptr),
+      m_sourceBuffer(buffer),
+      m_sourceIter(m_sourceBuffer.cbegin())
+{
+    if (m_sourceIter != m_sourceBuffer.cend())
+    {
+        m_nextChar = *m_sourceIter;
     }
 }
 
 Token Lexer::takeToken()
 {
-    if (m_byte == m_text.size())
+    if (m_nextChar == '\0')
     {
         return makeToken(TokenType::END_OF_INPUT);
     }
@@ -164,7 +177,7 @@ Token Lexer::takeToken()
             {
                 takeByte();
             }
-            return makeToken(identifierType({m_tokStart, m_tokSize}));
+            return makeToken(identifierType(m_sourceBuffer.getString(m_tokStart, m_tokSize)));
         }
 
         default:
@@ -178,14 +191,23 @@ void Lexer::takeByte()
 {
     ++m_tokSize;
     ++m_byte;
-    m_nextChar = m_byte == m_text.size() ? '\0' : m_text[m_byte];
+    ++m_sourceIter;
+    if (m_sourceIter == m_sourceBuffer.cend())
+    {
+        m_nextChar = '\0';
+    }
+    else
+    {
+        m_nextChar = *m_sourceIter;
+    }
+    //m_nextChar = m_byte == m_text.size() ? '\0' : m_text[m_byte];
 }
 
 Token Lexer::makeToken(TokenType tokenType)
 {
-    Token tok(tokenType, {m_tokStart, m_tokSize}, m_line, m_col);
+    Token tok(tokenType, m_sourceBuffer.getString(m_tokStart, m_tokSize), m_line, m_col);
     m_col += m_tokSize;
-    m_tokStart = &m_text[m_byte];
+    m_tokStart = m_byte;
     m_tokSize = 0;
 
     logi << "makeToken returning: " << tok;
