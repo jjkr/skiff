@@ -4,6 +4,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
+#include <map>
 #include <memory>
 
 namespace sk
@@ -26,6 +27,7 @@ public:
     llvm::Module& getLlvmModule() { return *m_module; }
 
 private:
+    std::map<string_view, llvm::Value*> m_symbols;
     Block* m_block = nullptr;
     llvm::Value* m_value = nullptr;
     llvm::LLVMContext m_llvmContext;

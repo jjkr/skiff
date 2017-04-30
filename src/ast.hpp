@@ -38,7 +38,7 @@ public:
     std::vector<std::reference_wrapper<Expr>>& getExpressions() { return m_expressions; }
 
 private:
-    //std::map<std::string, Expr*> symbols;
+    //std::map<std::string, std::reference_wrapper<Expr>> m_variables;
     //std::vector<std::unique_ptr<Function>> functions;
     const string_view m_name;
     std::vector<std::reference_wrapper<Expr>> m_expressions;
@@ -97,13 +97,13 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     TokenKind getType() const { return m_kind; }
-    Expr& getLhs() { return *m_lhs; }
-    Expr& getRhs() { return *m_rhs; }
+    Expr& getLhs() { return m_lhs; }
+    Expr& getRhs() { return m_rhs; }
 
 private:
     TokenKind m_kind;
-    std::unique_ptr<Expr> m_lhs;
-    std::unique_ptr<Expr> m_rhs;
+    Expr& m_lhs;
+    Expr& m_rhs;
 };
 
 class Function : public Expr
@@ -135,15 +135,15 @@ private:
 class LetExpr : public Expr
 {
 public:
-    LetExpr(std::unique_ptr<Expr>&& id, std::unique_ptr<Expr>&& expr);
+    LetExpr(std::unique_ptr<Variable>&& id, std::unique_ptr<Expr>&& expr);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    Expr& getIdentifier() { return *m_identifier; }
-    Expr& getExpr() { return *m_expr; }
+    Variable& getIdentifier() { return m_identifier; }
+    Expr& getExpr() { return m_expr; }
 
 private:
-    std::unique_ptr<Expr> m_identifier;
-    std::unique_ptr<Expr> m_expr;
+    Variable& m_identifier;
+    Expr& m_expr;
 };
 
 }

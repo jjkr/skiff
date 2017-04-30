@@ -12,6 +12,8 @@
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -19,6 +21,8 @@ using llvm::ConstantInt;
 using llvm::Type;
 using std::make_unique;
 using std::move;
+using std::ostringstream;
+using std::runtime_error;
 using std::vector;
 
 namespace sk
@@ -63,9 +67,11 @@ void CodeGen::visit(Block& block)
     }
 }
 
-void CodeGen::visit(LetExpr& expr)
+void CodeGen::visit(LetExpr& letExpr)
 {
     logi << "Codegen::visit let";
+    dispatch(letExpr.getExpr());
+    m_symbols[letExpr.getIdentifier().getName()] = m_value;
 }
 
 void CodeGen::visit(Expr& expr)
@@ -92,6 +98,7 @@ void CodeGen::visit(Function& func)
     {
         auto paramName = func.getParameters()[i];
         arg->setName(llvm::StringRef(paramName.data(), paramName.size()));
+        m_symbols[paramName] = &*arg;
     }
 
     auto bb = llvm::BasicBlock::Create(m_llvmContext, "entry", llvmFunc);
@@ -105,6 +112,14 @@ void CodeGen::visit(Function& func)
 void CodeGen::visit(Variable& variable)
 {
     logi << "Codegen::visit variable";
+    auto val = m_symbols.find(variable.getName());
+    if (val == m_symbols.end())
+    {
+        ostringstream ss;
+        ss << "Symbol not found: " << variable.getName();
+        throw runtime_error(ss.str());
+    }
+    m_value = val->second;
 }
 
 void CodeGen::visit(I32Literal& lit)

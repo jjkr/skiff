@@ -20,11 +20,14 @@ int main(int argc, char** argv)
 
     //sk::setLogSeverity(sk::LogSeverity::WARN);
 
+    logd << "Building compiler";
     auto* inFilename = argv[argc - 1];
     Compiler compiler(inFilename);
 
+    logd << "compiling...";
     compiler.compile();
 
+    logd << "done compiling";
     compiler.printAst(cout);
     cout << endl;
 
