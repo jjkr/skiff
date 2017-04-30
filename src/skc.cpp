@@ -5,6 +5,7 @@
 #include "code_gen.hpp"
 #include "lexer.hpp"
 #include "ast_printer.hpp"
+#include "source.hpp"
 #include "parser.hpp"
 #include "util/logger.hpp"
 #include "llvm/IR/LegacyPassManager.h"
@@ -25,6 +26,7 @@ using sk::CodeGen;
 using sk::Lexer;
 using sk::Module;
 using sk::Token;
+using sk::SourceBuffer;
 using sk::Parser;
 using std::fopen;
 using std::fread;
@@ -46,23 +48,13 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    auto inFilename = string(argv[argc - 1]);
-    auto inFile = fopen(argv[argc - 1], "r");
+    auto* inFilename = argv[argc - 1];
+    SourceBuffer src = SourceBuffer::readFile(inFilename);
 
-    if (!inFile)
-    {
-        loge << "Could not open: " << inFile;
-        return 1;
-    }
-
-    auto bytesRead = fread(FILE_BUFFER, 1, FILE_BUFFER_SIZE, inFile);
-    if (bytesRead == 0) {
-        loge << "Empty file: " << inFile;
-        return 1;
-    }
-
-    Lexer lexer({FILE_BUFFER, bytesRead});
-    Module module({inFilename.data(), inFilename.size() - 3});
+    Lexer lexer(src);
+    auto moduleName = regex_replace(inFilename, regex("\\.sk$"), "");
+    logi << "moduleName: " << moduleName;
+    Module module(moduleName);
     Parser parser(module, lexer);
 
     parser.parse();

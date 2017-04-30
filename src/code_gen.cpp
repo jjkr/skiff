@@ -17,6 +17,7 @@
 
 using llvm::ConstantInt;
 using llvm::Type;
+using std::make_unique;
 using std::move;
 using std::vector;
 
@@ -24,14 +25,15 @@ namespace sk
 {
 CodeGen::CodeGen(string_view sourceFile)
     : m_irBuilder(m_llvmContext),
-      m_module(
-          new llvm::Module(llvm::StringRef(sourceFile.data(), sourceFile.size()), m_llvmContext))
+      m_module(new llvm::Module(llvm::StringRef(sourceFile.data(), sourceFile.size()),
+                                m_llvmContext))
 {
 }
 
 void CodeGen::visit(Module& module)
 {
     logi << "Codegen::visit module";
+
     vector<llvm::Type*> parameterList = {
         llvm::Type::getInt32Ty(m_llvmContext),
         llvm::PointerType::get(llvm::Type::getInt8PtrTy(m_llvmContext), 0)};
@@ -72,7 +74,7 @@ void CodeGen::visit(Function& func)
 {
     logi << "Codegen::visit func";
     vector<llvm::Type*> parameterList;
-    for (auto i = 0; i < func.getParameters().size(); ++i)
+    for (auto i = 0u; i < func.getParameters().size(); ++i)
     {
         parameterList.push_back(llvm::Type::getInt32Ty(m_llvmContext));
     }
@@ -83,7 +85,7 @@ void CodeGen::visit(Function& func)
                                            llvm::StringRef(funcName.data(), funcName.size()),
                                            m_module.get());
     auto arg = llvmFunc->args().begin();
-    for (auto i = 0; i < func.getParameters().size(); ++i, ++arg)
+    for (auto i = 0u; i < func.getParameters().size(); ++i, ++arg)
     {
         auto paramName = func.getParameters()[i];
         arg->setName(llvm::StringRef(paramName.data(), paramName.size()));

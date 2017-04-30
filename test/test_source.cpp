@@ -64,3 +64,20 @@ TEST(SourceBuffer, getString)
     buffer.addBlock(s);
     EXPECT_EQ("quick", buffer.getString(4, 5));
 }
+
+TEST(SourceBuffer, getStringMultiBlock)
+{
+    SourceBuffer buffer;
+    buffer.addBlock("foo");
+    buffer.addBlock("bar");
+    EXPECT_EQ("ooba", buffer.getString(1, 4));
+}
+
+TEST(SourceBuffer, getStringMultiMultiBlock)
+{
+    SourceBuffer buffer;
+    buffer.addBlock("foo");
+    buffer.addBlock("bar");
+    buffer.addBlock("baz");
+    EXPECT_EQ("obarbaz", buffer.getString(2, 7));
+}

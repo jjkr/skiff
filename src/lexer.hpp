@@ -68,13 +68,13 @@ class Lexer
 {
 public:
     Lexer(string_view sourceStr) noexcept;
-    Lexer(const SourceBuffer& buffer) noexcept;
+    Lexer(SourceBuffer& buffer) noexcept;
 
     Token takeToken();
 
 private:
     const std::unique_ptr<SourceBuffer> m_bufferOwner;
-    const SourceBuffer& m_sourceBuffer;
+    SourceBuffer& m_sourceBuffer;
     SourceBuffer::const_iterator m_sourceIter;
 
     void takeByte();

@@ -1,7 +1,9 @@
 #pragma once
 #include "util/string_view.hpp"
 #include <cassert>
+#include <map>
 #include <memory>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -19,6 +21,7 @@ public:
      * Constructs a SourceBuffer with a copy of the input string
      */
     static std::unique_ptr<SourceBuffer> fromSourceStr(string_view src);
+    static SourceBuffer readFile(const char* filename);
 
     static constexpr auto DEFAULT_BLOCK_SIZE = 4 << 10;
     std::vector<char>& makeBlock(size_t size = DEFAULT_BLOCK_SIZE);
@@ -30,8 +33,7 @@ public:
     size_t size() const { return m_totalSize; }
 
     char getChar(size_t byteOffset) const;
-    string_view getString(size_t byteOffset, size_t size) const;
-
+    string_view getString(size_t byteOffset, size_t size);
 
 
     // Iterator
@@ -94,9 +96,21 @@ private:
     };
     BlockAndOffset byteToBlockOffset(size_t byteOffset) const;
 
+    struct PairHash
+    {
+    public:
+        template <typename T, typename U>
+        std::size_t operator()(const std::pair<T, U> &x) const
+        {
+            return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+        }
+    };
+
     size_t m_totalSize = 0;
     //std::vector<size_t> m_newLineOffsets;
     std::vector<std::vector<char>> m_blocks;
+    std::unordered_map<std::pair<size_t, size_t>, string_view, PairHash> m_coalesceSet;
+    std::vector<std::vector<char>> m_coalesceOwners;
     //std::vector<std::vector<char>> m_coalesceBlocks;
 };
 

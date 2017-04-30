@@ -75,7 +75,7 @@ Lexer::Lexer(string_view sourceStr) noexcept
     }
 }
 
-Lexer::Lexer(const SourceBuffer& buffer) noexcept
+Lexer::Lexer(SourceBuffer& buffer) noexcept
     : m_bufferOwner(nullptr),
       m_sourceBuffer(buffer),
       m_sourceIter(m_sourceBuffer.cbegin())
