@@ -23,7 +23,7 @@ std::unique_ptr<SourceBuffer> SourceBuffer::fromSourceStr(string_view src)
     return buffer;
 }
 
-std::unique_ptr<SourceBuffer> SourceBuffer::readFile(const char* filename)
+std::unique_ptr<SourceBuffer> SourceBuffer::readFile(const char* filename, const size_t blockSize)
 {
     auto buffer = make_unique<SourceBuffer>();
     auto f = fopen(filename, "r");
@@ -33,15 +33,12 @@ std::unique_ptr<SourceBuffer> SourceBuffer::readFile(const char* filename)
         ss << "Failed to open file " << filename;
         throw runtime_error(ss.str());
     }
-    while (true)
+    for (auto bytesRead = blockSize; bytesRead == blockSize;)
     {
-        auto& block = buffer->makeBlock();
-        auto bytesRead = fread(block.data(), 1, block.size(), f);
-        if (bytesRead != block.size())
-        {
-            block.resize(bytesRead);
-            break;
-        }
+        vector<char> block(blockSize);
+        bytesRead = fread(block.data(), 1, block.size(), f);
+        block.resize(bytesRead);
+        buffer->addBlock(move(block));
     }
 
     return buffer;
@@ -70,14 +67,9 @@ void SourceBuffer::addBlock(vector<char>&& block)
 
 void SourceBuffer::addBlock(string_view s)
 {
-    if (s.empty())
-    {
-        return;
-    }
     vector<char> block(s.size());
     copy(s.cbegin(), s.cend(), block.begin());
-    m_totalSize += block.size();
-    m_blocks.push_back(move(block));
+    addBlock(move(block));
 }
 
 char SourceBuffer::getChar(size_t byteOffset) const
@@ -104,16 +96,16 @@ string_view SourceBuffer::getString(size_t byteOffset, size_t sz)
     }
     else
     {
-        auto key = make_pair(byteOffset, sz);
-        auto cached = m_coalesceSet.find(key);
-        if (cached != m_coalesceSet.end())
+        const auto key = make_pair(byteOffset, sz);
+        auto cached = m_coalesceMap.find(key);
+        if (cached != m_coalesceMap.end())
         {
             return cached->second;
         }
         else
         {
-            m_coalesceOwners.emplace_back(sz);
-            auto& coalesced = m_coalesceOwners.back();
+            std::vector<char> coalesced(sz);
+            //auto& coalesced = m_coalesceOwners.back();
 
             const auto& firstBlock = m_blocks[firstOffset.block];
             const auto firstBase = firstBlock.cbegin();
@@ -124,7 +116,7 @@ string_view SourceBuffer::getString(size_t byteOffset, size_t sz)
 
             while (firstOffset.block != lastOffset.block)
             {
-                auto fullBlock = m_blocks[firstOffset.block];
+                auto& fullBlock = m_blocks[firstOffset.block];
                 copy(fullBlock.begin(), fullBlock.end(), coalescedIter);
                 coalescedIter += fullBlock.size();
                 ++firstOffset.block;
@@ -132,10 +124,12 @@ string_view SourceBuffer::getString(size_t byteOffset, size_t sz)
 
             const auto& lastBlock = m_blocks[lastOffset.block];
             const auto lastBase = lastBlock.cbegin();
-            copy(lastBase, lastBase + lastBlock.size(), coalescedIter);
+            copy(lastBase, lastBase + lastOffset.offset + 1, coalescedIter);
 
             string_view newString(coalesced.data(), coalesced.size());
-            m_coalesceSet.insert(make_pair(key, newString));
+            //m_coalesceMap[key] = newString;
+            //m_coalesceMap.insert(make_pair(key, newString));
+            m_coalesceOwners.push_back(move(coalesced));
             return newString;
         }
     }

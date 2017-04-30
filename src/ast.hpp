@@ -93,15 +93,15 @@ private:
 class BinaryOp : public Expr
 {
 public:
-    BinaryOp(TokenType kind, std::unique_ptr<Expr>&& lhs, std::unique_ptr<Expr>&& rhs);
+    BinaryOp(TokenKind kind, std::unique_ptr<Expr>&& lhs, std::unique_ptr<Expr>&& rhs);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    TokenType getType() const { return m_type; }
+    TokenKind getType() const { return m_kind; }
     Expr& getLhs() { return *m_lhs; }
     Expr& getRhs() { return *m_rhs; }
 
 private:
-    TokenType m_type;
+    TokenKind m_kind;
     std::unique_ptr<Expr> m_lhs;
     std::unique_ptr<Expr> m_rhs;
 };

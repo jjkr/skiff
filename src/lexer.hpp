@@ -6,7 +6,7 @@
 
 namespace sk
 {
-enum class TokenType
+enum class TokenKind
 {
     WHITESPACE,
     NEWLINE,
@@ -41,12 +41,12 @@ class Token
 public:
     Token() = default;
 
-    Token(TokenType type, string_view str, int line, int col)
-        : m_type(type), m_str(str), m_line(line), m_col(col)
+    Token(TokenKind type, string_view str, int line, int col)
+        : m_kind(type), m_str(str), m_line(line), m_col(col)
     {
     }
 
-    TokenType getType() { return m_type; }
+    TokenKind getKind() { return m_kind; }
     string_view getStr() { return m_str; }
     int getLine() { return m_line; }
     int getCol() { return m_col; }
@@ -55,12 +55,12 @@ public:
     bool isWhitespace() const;
 
 private:
-    TokenType m_type;
+    TokenKind m_kind;
     string_view m_str;
     int m_line;
     int m_col;
 };
-int getTokenPrecedence(TokenType kind);
+int getTokenPrecedence(TokenKind kind);
 std::ostream& operator<<(std::ostream& os, Token token);
 
 
@@ -78,7 +78,7 @@ private:
     SourceBuffer::const_iterator m_sourceIter;
 
     char advance();
-    Token makeToken(TokenType kind);
+    Token makeToken(TokenKind kind);
 
     char currentChar();
 
@@ -93,5 +93,5 @@ private:
     int m_col = 1;
 };
 
-std::ostream& operator<<(std::ostream& os, TokenType kind);
+std::ostream& operator<<(std::ostream& os, TokenKind kind);
 }

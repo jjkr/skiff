@@ -5,14 +5,14 @@
 #include <sstream>
 
 using sk::Token;
-using sk::TokenType;
+using sk::TokenKind;
 using sk::Lexer;
 using std::count_if;
 using std::istringstream;
 
 TEST(Token, constructs)
 {
-    EXPECT_NO_THROW(Token tok(TokenType::WHITESPACE, "   ", 4, 23));
+    EXPECT_NO_THROW(Token tok(TokenKind::WHITESPACE, "   ", 4, 23));
 }
 
 TEST(Lexer, constructs)
@@ -23,26 +23,26 @@ TEST(Lexer, constructs)
 TEST(Lexer, lexesEmptyStream)
 {
     Lexer lexer("");
-    EXPECT_EQ(TokenType::END_OF_INPUT, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::END_OF_INPUT, lexer.takeToken().getKind());
 }
 
 TEST(Lexer, lexesNegativeNumber)
 {
     Lexer lexer("-5");
-    EXPECT_EQ(TokenType::MINUS, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::NUMBER, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::MINUS, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::NUMBER, lexer.takeToken().getKind());
 }
 
 TEST(Lexer, lexesPlusExpression)
 {
     Lexer lexer("1 + 2");
-    EXPECT_EQ(TokenType::NUMBER, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::NUMBER, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
     auto plusTok = lexer.takeToken();
-    EXPECT_EQ(TokenType::PLUS, plusTok.getType());
+    EXPECT_EQ(TokenKind::PLUS, plusTok.getKind());
     EXPECT_EQ("+", plusTok.getStr());
     EXPECT_EQ(3, plusTok.getCol());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
 }
 
 TEST(Lexer, lexesMultiLineFunction)
@@ -52,49 +52,49 @@ TEST(Lexer, lexesMultiLineFunction)
     2 * -8 + (6 / 2)
 })" );
     lexer.takeToken();
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::IDENTIFIER, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::OPEN_PAREN, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::CLOSE_PAREN, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::OPEN_BRACE, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::IDENTIFIER, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::OPEN_PAREN, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::CLOSE_PAREN, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::OPEN_BRACE, lexer.takeToken().getKind());
 }
 
 TEST(Lexer, lexesFunctionWithParameters)
 {
     Lexer lexer("fn foo(a, b, c) {}");
-    EXPECT_EQ(TokenType::FN, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::IDENTIFIER, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::OPEN_PAREN, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::IDENTIFIER, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::COMMA, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::IDENTIFIER, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::COMMA, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::IDENTIFIER, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::CLOSE_PAREN, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::OPEN_BRACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::CLOSE_BRACE, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::FN, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::IDENTIFIER, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::OPEN_PAREN, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::IDENTIFIER, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::COMMA, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::IDENTIFIER, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::COMMA, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::IDENTIFIER, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::CLOSE_PAREN, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::OPEN_BRACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::CLOSE_BRACE, lexer.takeToken().getKind());
 }
 
 TEST(Lexer, lexesComments)
 {
     Lexer lexer("# here be dragons");
-    EXPECT_EQ(TokenType::COMMENT, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::END_OF_INPUT, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::COMMENT, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::END_OF_INPUT, lexer.takeToken().getKind());
 }
 
 TEST(Lexer, lexesLet)
 {
     Lexer lexer("let x = 5");
-    EXPECT_EQ(TokenType::LET, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::IDENTIFIER, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::EQUALS, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::WHITESPACE, lexer.takeToken().getType());
-    EXPECT_EQ(TokenType::NUMBER, lexer.takeToken().getType());
+    EXPECT_EQ(TokenKind::LET, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::IDENTIFIER, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::EQUALS, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::WHITESPACE, lexer.takeToken().getKind());
+    EXPECT_EQ(TokenKind::NUMBER, lexer.takeToken().getKind());
 }

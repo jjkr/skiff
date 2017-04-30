@@ -17,20 +17,25 @@ namespace sk
 class SourceBuffer
 {
 public:
+    static constexpr auto DEFAULT_BLOCK_SIZE = 4u << 10;
+
     /**
      * Constructs a SourceBuffer with a copy of the input string
      */
     static std::unique_ptr<SourceBuffer> fromSourceStr(string_view src);
-    static std::unique_ptr<SourceBuffer> readFile(const char* filename);
+    /**
+     * Opens and reads a file into a SourceBuffer object
+     * @param filename
+     * @return
+     */
+    static std::unique_ptr<SourceBuffer> readFile(const char* filename,
+                                                  size_t blockSize = DEFAULT_BLOCK_SIZE);
 
-    static constexpr auto DEFAULT_BLOCK_SIZE = 4 << 10;
     std::vector<char>& makeBlock(size_t size = DEFAULT_BLOCK_SIZE);
     void addBlock(std::vector<char>&& block);
     void addBlock(string_view s);
 
     std::vector<std::vector<char>>& getBlocks() { return m_blocks; }
-
-    size_t size() const { return m_totalSize; }
 
     char getChar(size_t byteOffset) const;
     string_view getString(size_t byteOffset, size_t size);
@@ -88,6 +93,8 @@ public:
     const_iterator cbegin() const { return const_iterator(m_blocks); }
     const_iterator cend() const { return const_iterator(m_blocks, m_blocks.size()); }
 
+    size_t size() const { return m_totalSize; }
+
 private:
     struct BlockAndOffset
     {
@@ -98,7 +105,6 @@ private:
 
     struct PairHash
     {
-    public:
         template <typename T, typename U>
         std::size_t operator()(const std::pair<T, U> &x) const
         {
@@ -109,8 +115,10 @@ private:
     size_t m_totalSize = 0;
     //std::vector<size_t> m_newLineOffsets;
     std::vector<std::vector<char>> m_blocks;
-    std::unordered_map<std::pair<size_t, size_t>, string_view, PairHash> m_coalesceSet;
+
     std::vector<std::vector<char>> m_coalesceOwners;
+    // Maps byteOffset, length to string_view of coalesced string
+    std::unordered_map<std::pair<size_t, size_t>, string_view, PairHash> m_coalesceMap;
 };
 
 

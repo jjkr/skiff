@@ -124,16 +124,16 @@ void CodeGen::visit(BinaryOp& binOp)
     auto opType = binOp.getType();
     switch (opType)
     {
-        case TokenType::PLUS:
+        case TokenKind::PLUS:
             m_value = m_irBuilder.CreateAdd(lhs, rhs);
             break;
-        case TokenType::MINUS:
+        case TokenKind::MINUS:
             m_value = m_irBuilder.CreateSub(lhs, rhs);
             break;
-        case TokenType::TIMES:
+        case TokenKind::TIMES:
             m_value = m_irBuilder.CreateMul(lhs, rhs);
             break;
-        case TokenType::DIV:
+        case TokenKind::DIV:
             m_value = m_irBuilder.CreateSDiv(lhs, rhs);
             break;
         default:

@@ -17,7 +17,7 @@ using std::vector;
 namespace sk
 {
 Parser::Parser(Module& module, Lexer& lexer) : m_module(module), m_lexer(lexer),
-                                               m_tok(TokenType::WHITESPACE, "", 0, 0)
+                                               m_tok(TokenKind::WHITESPACE, "", 0, 0)
 {
 }
 
@@ -31,7 +31,7 @@ void Parser::parse()
 void Parser::parseBlock(Block& block)
 {
     auto& expressions = block.getExpressions();
-    auto hasBrace = m_tok.getType() == TokenType::OPEN_BRACE;
+    auto hasBrace = m_tok.getKind() == TokenKind::OPEN_BRACE;
     if (hasBrace)
     {
         consumeToken();
@@ -45,7 +45,7 @@ void Parser::parseBlock(Block& block)
     }
     if (hasBrace)
     {
-        if (m_tok.getType() != TokenType::CLOSE_BRACE) {
+        if (m_tok.getKind() != TokenKind::CLOSE_BRACE) {
             loge << "Unexpected token " << m_tok << ", expected CLOSE_BRACE";
             throw runtime_error("Unexpected token");
         }
@@ -65,19 +65,19 @@ unique_ptr<Expr> Parser::parseExpression()
 
 unique_ptr<Expr> Parser::parsePrimaryExpr()
 {
-    switch (m_tok.getType())
+    switch (m_tok.getKind())
     {
-        case TokenType::IDENTIFIER:
+        case TokenKind::IDENTIFIER:
             return parseIdentifier();
-        case TokenType::NUMBER:
+        case TokenKind::NUMBER:
             return parseNumber();
-        case TokenType::MINUS:
+        case TokenKind::MINUS:
             return parseNegativeNumber();
-        case TokenType::OPEN_PAREN:
+        case TokenKind::OPEN_PAREN:
             return parseParenExpression();
-        case TokenType::FN:
+        case TokenKind::FN:
             return parseFunctionDefinition();
-        case TokenType::LET:
+        case TokenKind::LET:
             return parseLetExpression();
         default:
             return nullptr;
@@ -88,7 +88,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
 {
     while (true)
     {
-        auto precedence = getTokenPrecedence(m_tok.getType());
+        auto precedence = getTokenPrecedence(m_tok.getKind());
         if (precedence < minPrecedence)
         {
             return move(lhs);
@@ -98,7 +98,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
         consumeToken();
         auto rhs = parsePrimaryExpr();
 
-        auto nextPrecedence = getTokenPrecedence(m_tok.getType());
+        auto nextPrecedence = getTokenPrecedence(m_tok.getKind());
         if (precedence < nextPrecedence)
         {
             rhs = parseBinOpRhs(move(rhs), precedence + 1);
@@ -108,7 +108,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
             }
         }
 
-        lhs = unique_ptr<Expr>(new BinaryOp(opToken.getType(), move(lhs), move(rhs)));
+        lhs = unique_ptr<Expr>(new BinaryOp(opToken.getKind(), move(lhs), move(rhs)));
     }
 }
 
@@ -137,7 +137,7 @@ unique_ptr<Expr> Parser::parseNumber()
 unique_ptr<Expr> Parser::parseFunctionDefinition()
 {
     consumeToken(); // FN token
-    if (m_tok.getType() != TokenType::IDENTIFIER)
+    if (m_tok.getKind() != TokenKind::IDENTIFIER)
     {
         loge << "Unexpected token " << m_tok << ", expected IDENTIFIER";
         throw runtime_error("Unexpected token");
@@ -145,26 +145,26 @@ unique_ptr<Expr> Parser::parseFunctionDefinition()
     auto name = m_tok.getStr();
     consumeToken();
     vector<string_view> parameters;
-    if (m_tok.getType() == TokenType::OPEN_PAREN)
+    if (m_tok.getKind() == TokenKind::OPEN_PAREN)
     {
         consumeToken(); // ( token
-        if (m_tok.getType() != TokenType::CLOSE_PAREN)
+        if (m_tok.getKind() != TokenKind::CLOSE_PAREN)
         {
             while (true)
             {
-                if (m_tok.getType() != TokenType::IDENTIFIER)
+                if (m_tok.getKind() != TokenKind::IDENTIFIER)
                 {
                     loge << "Unexpected token " << m_tok << ", expected IDENTIFIER";
                     throw runtime_error("Unexpected token");
                 }
                 parameters.push_back(m_tok.getStr());
                 consumeToken();
-                if (m_tok.getType() == TokenType::CLOSE_PAREN)
+                if (m_tok.getKind() == TokenKind::CLOSE_PAREN)
                 {
                     consumeToken();
                     break;
                 }
-                if (m_tok.getType() != TokenType::COMMA)
+                if (m_tok.getKind() != TokenKind::COMMA)
                 {
                     loge << "Unexpected token " << m_tok << ", expected COMMA";
                     throw runtime_error("Unexpected token");
@@ -182,7 +182,7 @@ unique_ptr<Expr> Parser::parseParenExpression()
 {
     consumeToken(); // OPEN_PAREN token
     auto expr = parseExpression();
-    if (m_tok.getType() != TokenType::CLOSE_PAREN)
+    if (m_tok.getKind() != TokenKind::CLOSE_PAREN)
     {
         throw runtime_error("Expected CLOSE_PAREN token");
     }
@@ -194,7 +194,7 @@ unique_ptr<Expr> Parser::parseLetExpression()
 {
     consumeToken(); // LET token
     auto id = parseIdentifier();
-    if (m_tok.getType() != TokenType::EQUALS)
+    if (m_tok.getKind() != TokenKind::EQUALS)
     {
         throw runtime_error("Expected EQUALS token");
     }
@@ -206,7 +206,7 @@ unique_ptr<Expr> Parser::parseLetExpression()
 
 void Parser::consumeWhitespae()
 {
-    while (m_tok.isWhitespace())
+    while (m_tok.isWhitespace() || m_tok.getKind() == TokenKind::COMMENT)
     {
         m_tok = m_lexer.takeToken();
     }

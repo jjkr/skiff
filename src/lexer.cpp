@@ -17,21 +17,21 @@ using std::unordered_map;
 namespace
 {
 using sk::Token;
-using sk::TokenType;
+using sk::TokenKind;
 using sk::string_view;
-const unordered_map<string_view, TokenType> keywords = {
-    {"fn", TokenType::FN},
-    {"let", TokenType::LET},
-    {"if", TokenType::IF},
-    {"else", TokenType::ELSE},
-    {"for", TokenType::FOR},
-    {"while", TokenType::WHILE}
+const unordered_map<string_view, TokenKind> keywords = {
+    {"fn", TokenKind::FN},
+    {"let", TokenKind::LET},
+    {"if", TokenKind::IF},
+    {"else", TokenKind::ELSE},
+    {"for", TokenKind::FOR},
+    {"while", TokenKind::WHILE}
 };
 
-TokenType identifierType(string_view id)
+TokenKind identifierType(string_view id)
 {
     const auto keyword = keywords.find(id);
-    return keyword == keywords.cend() ? TokenType::IDENTIFIER : keyword->second;
+    return keyword == keywords.cend() ? TokenKind::IDENTIFIER : keyword->second;
 }
 }
 
@@ -39,25 +39,25 @@ namespace sk
 {
 bool Token::isWhitespace() const
 {
-    switch (m_type)
+    switch (m_kind)
     {
-        case TokenType::WHITESPACE:
-        case TokenType::NEWLINE:
+        case TokenKind::WHITESPACE:
+        case TokenKind::NEWLINE:
             return true;
         default:
             return false;
     }
 }
 
-int getTokenPrecedence(TokenType tokenType)
+int getTokenPrecedence(TokenKind tokenType)
 {
     switch (tokenType)
     {
-        case TokenType::PLUS:
-        case TokenType::MINUS:
+        case TokenKind::PLUS:
+        case TokenKind::MINUS:
             return 10;
-        case TokenType::TIMES:
-        case TokenType::DIV:
+        case TokenKind::TIMES:
+        case TokenKind::DIV:
             return 20;
         default:
             return -1;
@@ -83,7 +83,7 @@ Token Lexer::takeToken()
     auto last = currentChar();
     if (last == '\0')
     {
-        return makeToken(TokenType::END_OF_INPUT);
+        return makeToken(TokenKind::END_OF_INPUT);
     }
     auto current = advance();
     switch (last)
@@ -96,7 +96,7 @@ Token Lexer::takeToken()
             {
                 current = advance();
             }
-            const auto tok = makeToken(TokenType::NEWLINE);
+            const auto tok = makeToken(TokenKind::NEWLINE);
             ++m_line;
             m_col = 1;
             return tok;
@@ -110,7 +110,7 @@ Token Lexer::takeToken()
             {
                 current = advance();
             }
-            return makeToken(TokenType::WHITESPACE);
+            return makeToken(TokenKind::WHITESPACE);
         }
 
         case '#':
@@ -120,34 +120,34 @@ Token Lexer::takeToken()
             {
                 current = advance();
             }
-            return makeToken(TokenType::COMMENT);
+            return makeToken(TokenKind::COMMENT);
         }
 
         // Parenthesis
         case '(':
-            return makeToken(TokenType::OPEN_PAREN);
+            return makeToken(TokenKind::OPEN_PAREN);
         case ')':
-            return makeToken(TokenType::CLOSE_PAREN);
+            return makeToken(TokenKind::CLOSE_PAREN);
         case '{':
-            return makeToken(TokenType::OPEN_BRACE);
+            return makeToken(TokenKind::OPEN_BRACE);
         case '}':
-            return makeToken(TokenType::CLOSE_BRACE);
+            return makeToken(TokenKind::CLOSE_BRACE);
 
         case ',':
-            return makeToken(TokenType::COMMA);
+            return makeToken(TokenKind::COMMA);
 
         // Operators
         case '+':
-            return makeToken(TokenType::PLUS);
+            return makeToken(TokenKind::PLUS);
         case '*':
-            return makeToken(TokenType::TIMES);
+            return makeToken(TokenKind::TIMES);
         case '/':
-            return makeToken(TokenType::DIV);
+            return makeToken(TokenKind::DIV);
         case '-':
-            return makeToken(TokenType::MINUS);
+            return makeToken(TokenKind::MINUS);
 
         case '=':
-            return makeToken(TokenType::EQUALS);
+            return makeToken(TokenKind::EQUALS);
 
         // Integer constants
         case '0' ... '9':
@@ -156,7 +156,7 @@ Token Lexer::takeToken()
             {
                 current = advance();
             }
-            return makeToken(TokenType::NUMBER);
+            return makeToken(TokenKind::NUMBER);
         }
 
         // Identifiers
@@ -188,7 +188,7 @@ char Lexer::advance()
     //m_nextChar = m_byte == m_text.size() ? '\0' : m_text[m_byte];
 }
 
-Token Lexer::makeToken(TokenType tokenType)
+Token Lexer::makeToken(TokenKind tokenType)
 {
     Token tok(tokenType, m_sourceBuffer.getString(m_tokStart, m_tokSize), m_line, m_col);
     m_col += m_tokSize;
@@ -213,78 +213,78 @@ char Lexer::currentChar()
 
 ostream& operator<<(ostream& os, Token token)
 {
-    return os << token.getType() << " '" << token.getStr() << "' [" << token.getLine()
+    return os << token.getKind() << " '" << token.getStr() << "' [" << token.getLine()
               << ", " << token.getCol() << "] ";
 }
 
-ostream& operator<<(ostream& os, TokenType tokenType)
+ostream& operator<<(ostream& os, TokenKind tokenType)
 {
     switch (tokenType)
     {
-        case TokenType::WHITESPACE:
+        case TokenKind::WHITESPACE:
             os << "WHITESPACE";
             break;
-        case TokenType::NEWLINE:
+        case TokenKind::NEWLINE:
             os << "NEWLINE";
             break;
-        case TokenType::END_OF_INPUT:
+        case TokenKind::END_OF_INPUT:
             os << "END_OF_INPUT";
             break;
-        case TokenType::IDENTIFIER:
+        case TokenKind::IDENTIFIER:
             os << "IDENTIFIER";
             break;
-        case TokenType::COMMENT:
+        case TokenKind::COMMENT:
             os << "COMMENT";
             break;
-        case TokenType::NUMBER:
+        case TokenKind::NUMBER:
             os << "NUMBER";
             break;
-        case TokenType::FN:
+        case TokenKind::FN:
             os << "FN";
             break;
-        case TokenType::LET:
+        case TokenKind::LET:
             os << "LET";
             break;
-        case TokenType::IF:
+        case TokenKind::IF:
             os << "IF";
             break;
-        case TokenType::ELSE:
+        case TokenKind::ELSE:
             os << "ELSE";
             break;
-        case TokenType::FOR:
+        case TokenKind::FOR:
             os << "FOR";
             break;
-        case TokenType::WHILE:
+        case TokenKind::WHILE:
             os << "WHILE";
             break;
-        case TokenType::PLUS:
+        case TokenKind::PLUS:
             os << "PLUS";
             break;
-        case TokenType::MINUS:
+        case TokenKind::MINUS:
             os << "MINUS";
             break;
-        case TokenType::TIMES:
+        case TokenKind::TIMES:
             os << "TIMES";
             break;
-        case TokenType::DIV:
+        case TokenKind::DIV:
             os << "DIV";
             break;
-        case TokenType::EQUALS:
+        case TokenKind::EQUALS:
             os << "EQUALS";
             break;
-        case TokenType::OPEN_PAREN:
+        case TokenKind::OPEN_PAREN:
             os << "OPEN_PAREN";
             break;
-        case TokenType::CLOSE_PAREN:
+        case TokenKind::CLOSE_PAREN:
             os << "CLOSE_PAREN";
             break;
-        case TokenType::OPEN_BRACE:
+        case TokenKind::OPEN_BRACE:
             os << "OPEN_BRACE";
             break;
-        case TokenType::CLOSE_BRACE:
+        case TokenKind::CLOSE_BRACE:
             os << "CLOSE_BRACE";
             break;
-        case TokenType::COMMA:
+        case TokenKind::COMMA:
             os << "COMMA";
             break;
     }
