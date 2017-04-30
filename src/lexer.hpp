@@ -82,8 +82,6 @@ private:
 
     char currentChar();
 
-    //string_view m_text;
-
     // current token state
     uint32_t m_tokStart = 0u; // Source offset in bytes
     uint32_t m_tokSize = 0u;

@@ -64,7 +64,7 @@ public:
         }
         bool operator==(Iterator other) const
         {
-            return m_blocks == other.m_blocks == m_blockOffset == other.m_blockOffset &&
+            return m_blocks == other.m_blocks && m_blockOffset == other.m_blockOffset &&
                    m_byteOffset == other.m_byteOffset;
         }
         bool operator!=(Iterator other) const { return !(*this == other); }

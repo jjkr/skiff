@@ -23,6 +23,7 @@ Parser::Parser(Module& module, Lexer& lexer) : m_module(module), m_lexer(lexer),
 
 void Parser::parse()
 {
+    m_tok = m_lexer.takeToken();
     consumeWhitespae();
     parseBlock(m_module.getMainBlock());
 }
@@ -213,9 +214,8 @@ void Parser::consumeWhitespae()
 
 void Parser::consumeToken()
 {
-    do
-    {
-        m_tok = m_lexer.takeToken();
-    } while (m_tok.isWhitespace());
+    consumeWhitespae();
+    m_tok = m_lexer.takeToken();
+    consumeWhitespae();
 }
 }

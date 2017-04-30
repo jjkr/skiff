@@ -201,13 +201,13 @@ Token Lexer::makeToken(TokenType tokenType)
 
 char Lexer::currentChar()
 {
-    if (m_sourceIter == m_sourceBuffer.cend())
+    if (m_sourceIter != m_sourceBuffer.cend())
     {
-        return '\0';
+        return *m_sourceIter;
     }
     else
     {
-        return *m_sourceIter;
+        return '\0';
     }
 }
 
