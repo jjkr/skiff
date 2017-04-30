@@ -69,10 +69,6 @@ Lexer::Lexer(string_view sourceStr) noexcept
       m_sourceBuffer(*m_bufferOwner),
       m_sourceIter(m_sourceBuffer.cbegin())
 {
-    if (m_sourceIter != m_sourceBuffer.cend())
-    {
-        m_nextChar = *m_sourceIter;
-    }
 }
 
 Lexer::Lexer(SourceBuffer& buffer) noexcept
@@ -80,29 +76,25 @@ Lexer::Lexer(SourceBuffer& buffer) noexcept
       m_sourceBuffer(buffer),
       m_sourceIter(m_sourceBuffer.cbegin())
 {
-    if (m_sourceIter != m_sourceBuffer.cend())
-    {
-        m_nextChar = *m_sourceIter;
-    }
 }
 
 Token Lexer::takeToken()
 {
-    if (m_nextChar == '\0')
+    auto last = currentChar();
+    if (last == '\0')
     {
         return makeToken(TokenType::END_OF_INPUT);
     }
-    const auto current = m_nextChar;
-    takeByte();
-    switch (current)
+    auto current = advance();
+    switch (last)
     {
         // newline
         case '\r':
         case '\n':
         {
-            if ('\n' == m_nextChar)
+            if ('\n' == current)
             {
-                takeByte();
+                current = advance();
             }
             const auto tok = makeToken(TokenType::NEWLINE);
             ++m_line;
@@ -114,9 +106,9 @@ Token Lexer::takeToken()
         case ' ':
         case '\t':
         {
-            while (m_nextChar == ' ' || m_nextChar == '\t')
+            while (current == ' ' || current == '\t')
             {
-                takeByte();
+                current = advance();
             }
             return makeToken(TokenType::WHITESPACE);
         }
@@ -124,9 +116,9 @@ Token Lexer::takeToken()
         case '#':
         {
             // Single line comments
-            while (m_nextChar != '\r' && m_nextChar != '\n' && m_nextChar != '\0')
+            while (current != '\r' && current != '\n' && current != '\0')
             {
-                takeByte();
+                current = advance();
             }
             return makeToken(TokenType::COMMENT);
         }
@@ -160,9 +152,9 @@ Token Lexer::takeToken()
         // Integer constants
         case '0' ... '9':
         {
-            while (m_nextChar >= '0' && m_nextChar <= '9')
+            while (current >= '0' && current <= '9')
             {
-                takeByte();
+                current = advance();
             }
             return makeToken(TokenType::NUMBER);
         }
@@ -171,11 +163,11 @@ Token Lexer::takeToken()
         case 'A' ... 'Z':
         case 'a' ... 'z':
         {
-            while ((m_nextChar >= 'A' && m_nextChar <= 'Z') ||
-                   (m_nextChar >= 'a' && m_nextChar <= 'z') ||
-                   (m_nextChar >= '0' && m_nextChar <= '9'))
+            while ((current >= 'A' && current <= 'Z') ||
+                   (current >= 'a' && current <= 'z') ||
+                   (current >= '0' && current <= '9'))
             {
-                takeByte();
+                current = advance();
             }
             return makeToken(identifierType(m_sourceBuffer.getString(m_tokStart, m_tokSize)));
         }
@@ -187,19 +179,12 @@ Token Lexer::takeToken()
     }
 }
 
-void Lexer::takeByte()
+char Lexer::advance()
 {
     ++m_tokSize;
     ++m_byte;
     ++m_sourceIter;
-    if (m_sourceIter == m_sourceBuffer.cend())
-    {
-        m_nextChar = '\0';
-    }
-    else
-    {
-        m_nextChar = *m_sourceIter;
-    }
+    return currentChar();
     //m_nextChar = m_byte == m_text.size() ? '\0' : m_text[m_byte];
 }
 
@@ -212,6 +197,18 @@ Token Lexer::makeToken(TokenType tokenType)
 
     logi << "makeToken returning: " << tok;
     return tok;
+}
+
+char Lexer::currentChar()
+{
+    if (m_sourceIter == m_sourceBuffer.cend())
+    {
+        return '\0';
+    }
+    else
+    {
+        return *m_sourceIter;
+    }
 }
 
 ostream& operator<<(ostream& os, Token token)

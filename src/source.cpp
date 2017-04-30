@@ -23,9 +23,9 @@ std::unique_ptr<SourceBuffer> SourceBuffer::fromSourceStr(string_view src)
     return buffer;
 }
 
-SourceBuffer SourceBuffer::readFile(const char* filename)
+std::unique_ptr<SourceBuffer> SourceBuffer::readFile(const char* filename)
 {
-    SourceBuffer buffer;
+    auto buffer = make_unique<SourceBuffer>();
     auto f = fopen(filename, "r");
     if (!f)
     {
@@ -35,7 +35,7 @@ SourceBuffer SourceBuffer::readFile(const char* filename)
     }
     while (true)
     {
-        auto& block = buffer.makeBlock();
+        auto& block = buffer->makeBlock();
         auto bytesRead = fread(block.data(), 1, block.size(), f);
         if (bytesRead != block.size())
         {

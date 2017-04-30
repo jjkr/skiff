@@ -77,8 +77,10 @@ private:
     SourceBuffer& m_sourceBuffer;
     SourceBuffer::const_iterator m_sourceIter;
 
-    void takeByte();
+    char advance();
     Token makeToken(TokenType kind);
+
+    char currentChar();
 
     //string_view m_text;
 
@@ -91,9 +93,6 @@ private:
     // line and col are 1-based
     int m_line = 1;
     int m_col = 1;
-
-    // peek ahead one character
-    char m_nextChar = '\0';
 };
 
 std::ostream& operator<<(std::ostream& os, TokenType kind);

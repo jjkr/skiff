@@ -49,14 +49,17 @@ void CodeGen::visit(Module& module)
     auto bb = llvm::BasicBlock::Create(m_llvmContext, "", llvmFunc);
     m_irBuilder.SetInsertPoint(bb);
     dispatch(module.getMainBlock());
+
+    m_irBuilder.SetInsertPoint(bb);
+    m_irBuilder.CreateRet(m_value);
 }
 
 void CodeGen::visit(Block& block)
 {
     logi << "Codegen::visit block";
-    for (auto&& e : block.getExpressions())
+    for (auto& e : block.getExpressions())
     {
-        dispatch(*e);
+        dispatch(e);
     }
 }
 

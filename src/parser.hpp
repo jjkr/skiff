@@ -24,6 +24,7 @@ private:
     std::unique_ptr<Expr> parseFunctionDefinition();
     std::unique_ptr<Expr> parseLetExpression();
 
+    void consumeWhitespae();
     void consumeToken();
 
     Module& m_module;

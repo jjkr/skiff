@@ -19,11 +19,11 @@ namespace sk
 Parser::Parser(Module& module, Lexer& lexer) : m_module(module), m_lexer(lexer),
                                                m_tok(TokenType::WHITESPACE, "", 0, 0)
 {
-    consumeToken();
 }
 
 void Parser::parse()
 {
+    consumeWhitespae();
     parseBlock(m_module.getMainBlock());
 }
 
@@ -38,7 +38,8 @@ void Parser::parseBlock(Block& block)
     auto expr = parseExpression();
     while (expr)
     {
-        expressions.push_back(move(expr));
+        expressions.push_back(std::ref(*expr));
+        block.addChild(move(expr));
         expr = parseExpression();
     }
     if (hasBrace)
@@ -200,6 +201,14 @@ unique_ptr<Expr> Parser::parseLetExpression()
     auto expr = parseExpression();
 
     return unique_ptr<Expr>(new LetExpr(move(id), move(expr)));
+}
+
+void Parser::consumeWhitespae()
+{
+    while (m_tok.isWhitespace())
+    {
+        m_tok = m_lexer.takeToken();
+    }
 }
 
 void Parser::consumeToken()

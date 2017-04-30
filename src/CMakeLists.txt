@@ -17,6 +17,8 @@ add_library(skiff
         parser.cpp
         source.hpp
         source.cpp
+        compiler.hpp
+        compiler.cpp
         )
 add_executable(skc skc.cpp)
 target_link_libraries(skc skiff ${SYSTEM_LIBRARIES})

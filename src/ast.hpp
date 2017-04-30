@@ -3,8 +3,10 @@
 #include "lexer.hpp"
 #include "util/visitor.hpp"
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace sk
@@ -15,6 +17,14 @@ class AstNode
 public:
     virtual ~AstNode() {}
     virtual void accept(AstVisitor& visitor) = 0;
+
+    std::vector<std::unique_ptr<AstNode>>& children() { return m_children; }
+    const std::vector<std::unique_ptr<AstNode>>& children() const { return m_children; }
+
+    void addChild(std::unique_ptr<AstNode>&& child) { m_children.push_back(std::move(child)); }
+
+private:
+    std::vector<std::unique_ptr<AstNode>> m_children;
 };
 
 class Block : public AstNode
@@ -25,13 +35,13 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     string_view getName() const { return m_name; }
-    std::vector<std::unique_ptr<Expr>>& getExpressions() { return m_expressions; }
+    std::vector<std::reference_wrapper<Expr>>& getExpressions() { return m_expressions; }
 
 private:
     //std::map<std::string, Expr*> symbols;
     //std::vector<std::unique_ptr<Function>> functions;
     const string_view m_name;
-    std::vector<std::unique_ptr<Expr>> m_expressions;
+    std::vector<std::reference_wrapper<Expr>> m_expressions;
 };
 
 class Module : public AstNode

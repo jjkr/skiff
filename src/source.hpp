@@ -21,7 +21,7 @@ public:
      * Constructs a SourceBuffer with a copy of the input string
      */
     static std::unique_ptr<SourceBuffer> fromSourceStr(string_view src);
-    static SourceBuffer readFile(const char* filename);
+    static std::unique_ptr<SourceBuffer> readFile(const char* filename);
 
     static constexpr auto DEFAULT_BLOCK_SIZE = 4 << 10;
     std::vector<char>& makeBlock(size_t size = DEFAULT_BLOCK_SIZE);
@@ -111,7 +111,6 @@ private:
     std::vector<std::vector<char>> m_blocks;
     std::unordered_map<std::pair<size_t, size_t>, string_view, PairHash> m_coalesceSet;
     std::vector<std::vector<char>> m_coalesceOwners;
-    //std::vector<std::vector<char>> m_coalesceBlocks;
 };
 
 

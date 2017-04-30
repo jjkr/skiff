@@ -20,9 +20,9 @@ void AstPrinter::visit(Block& block)
     //indent();
     //++m_depth;
     //m_out << "Block {\n";
-    for (auto&& expr: block.getExpressions())
+    for (auto& expr: block.getExpressions())
     {
-        dispatch(*expr);
+        dispatch(expr);
     }
     //--m_depth;
     //indent();
