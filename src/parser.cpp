@@ -68,7 +68,7 @@ unique_ptr<Expr> Parser::parsePrimaryExpr()
     switch (m_currentToken.getKind())
     {
         case TokenKind::IDENTIFIER:
-            return parseIdentifier();
+            return parseIdExpression();
         case TokenKind::NUMBER:
             return parseNumber();
         case TokenKind::MINUS:
@@ -116,7 +116,14 @@ unique_ptr<Identifier> Parser::parseIdentifier()
 {
     auto expr = make_unique<Identifier>(m_currentToken.getStr());
     advance();
+    return expr;
+}
 
+unique_ptr<Expr> Parser::parseIdExpression()
+{
+    auto id = parseIdentifier();
+
+    unique_ptr<Expr> expr;
     // FunctionCall
     vector<unique_ptr<Expr>> arguments;
     if (m_currentToken.getKind() == TokenKind::OPEN_PAREN)
@@ -144,6 +151,11 @@ unique_ptr<Identifier> Parser::parseIdentifier()
         {
             advance(); // ) token
         }
+        expr = make_unique<FunctionCall>(move(id), move(arguments));
+    }
+    else
+    {
+        expr = move(id);
     }
     return expr;
 }

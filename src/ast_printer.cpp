@@ -71,6 +71,28 @@ void AstPrinter::visit(Function& func)
     m_out << "}\n";
 }
 
+void AstPrinter::visit(FunctionCall& call)
+{
+    indent();
+    ++m_depth;
+    m_out << "FunctionCall " << call.getId().getName() << " args {\n";
+    auto first = true;
+    for (auto& arg : call.getArguments()) {
+        if (first)
+        {
+            first = false;
+        }
+        else
+        {
+            m_out << ", ";
+        }
+        dispatch(arg);
+    }
+    --m_depth;
+    indent();
+    m_out << "}\n";
+}
+
 void AstPrinter::visit(Identifier& var)
 {
     indent();

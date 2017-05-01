@@ -3,4 +3,4 @@ fn addFive(x) {
   y + 3
 }
 
-addFive
+addFive(8)

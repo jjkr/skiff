@@ -27,6 +27,18 @@ Function::Function(string_view name, std::vector<string_view>&& parameters)
 {
 }
 
+FunctionCall::FunctionCall(std::unique_ptr<Identifier>&& funcId,
+                           std::vector<std::unique_ptr<Expr>>&& args)
+    : m_funcId(*funcId), m_arguments()
+{
+    addChild(move(funcId));
+    for (auto& arg : args)
+    {
+        m_arguments.push_back(*arg);
+        addChild(move(arg));
+    }
+}
+
 LetExpr::LetExpr(unique_ptr<Identifier>&& id, unique_ptr<Expr>&& expr)
     : m_identifier(*id), m_expr(*expr)
 {

@@ -126,6 +126,10 @@ class FunctionCall : public Expr
 {
 public:
     FunctionCall(std::unique_ptr<Identifier>&& funcId, std::vector<std::unique_ptr<Expr>>&& args);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+    Identifier& getId() { return m_funcId; }
+    std::vector<std::reference_wrapper<Expr>>& getArguments() { return m_arguments; }
 
 private:
     Identifier& m_funcId;

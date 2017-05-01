@@ -101,6 +101,8 @@ void CodeGen::visit(Function& func)
         m_symbols[paramName] = &*arg;
     }
 
+    m_functions[funcName] = llvmFunc;
+
     auto bb = llvm::BasicBlock::Create(m_llvmContext, "entry", llvmFunc);
     m_irBuilder.SetInsertPoint(bb);
 
@@ -109,6 +111,28 @@ void CodeGen::visit(Function& func)
     m_irBuilder.CreateRet(m_value);
 
     m_value = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), 0);
+}
+
+void CodeGen::visit(FunctionCall& call)
+{
+    logi << "Codegen::visit function call";
+    auto funcName = call.getId().getName();
+    auto llvmFunc = m_functions.find(funcName);
+    if (llvmFunc == m_functions.end())
+    {
+        ostringstream ss;
+        ss << "Could not resolve function: " << funcName;
+        throw runtime_error(ss.str());
+    }
+
+    vector<llvm::Value*> llvmArgs;
+    for (auto& arg : call.getArguments())
+    {
+        dispatch(arg);
+        llvmArgs.push_back(m_value);
+    }
+
+    m_irBuilder.CreateCall(llvmFunc->second, llvmArgs);
 }
 
 void CodeGen::visit(Identifier& variable)
