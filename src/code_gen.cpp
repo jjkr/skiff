@@ -103,12 +103,16 @@ void CodeGen::visit(Function& func)
 
     m_functions[funcName] = llvmFunc;
 
+    auto oldInsertPoint = m_irBuilder.GetInsertPoint();
+
     auto bb = llvm::BasicBlock::Create(m_llvmContext, "entry", llvmFunc);
     m_irBuilder.SetInsertPoint(bb);
 
     dispatch(func.getBlock());
 
     m_irBuilder.CreateRet(m_value);
+
+    m_irBuilder.SetInsertPoint(&*oldInsertPoint);
 
     m_value = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), 0);
 }
@@ -132,7 +136,7 @@ void CodeGen::visit(FunctionCall& call)
         llvmArgs.push_back(m_value);
     }
 
-    m_irBuilder.CreateCall(llvmFunc->second, llvmArgs);
+    m_value = m_irBuilder.CreateCall(llvmFunc->second, llvmArgs);
 }
 
 void CodeGen::visit(Identifier& variable)
