@@ -78,7 +78,7 @@ Lexer::Lexer(SourceBuffer& buffer) noexcept
 {
 }
 
-Token Lexer::takeToken()
+Token Lexer::take()
 {
     auto last = currentChar();
     if (last == '\0')

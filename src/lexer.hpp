@@ -70,7 +70,7 @@ public:
     Lexer(string_view sourceStr) noexcept;
     Lexer(SourceBuffer& buffer) noexcept;
 
-    Token takeToken();
+    Token take();
 
 private:
     const std::unique_ptr<SourceBuffer> m_bufferOwner;

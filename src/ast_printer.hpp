@@ -12,7 +12,7 @@ public:
     void visit(LetExpr& expr) override;
     void visit(Expr& expr) override;
     void visit(Function& function) override;
-    void visit(Variable& variable) override;
+    void visit(Identifier& variable) override;
     void visit(I32Literal& i32Literal) override;
     void visit(BinaryOp& binOp) override;
 

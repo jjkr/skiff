@@ -2,3 +2,5 @@ fn addFive(x) {
   let y = x + 2
   y + 3
 }
+
+addFive

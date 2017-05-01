@@ -9,7 +9,7 @@ class LetExpr;
 class Module;
 class Expr;
 class Function;
-class Variable;
+class Identifier;
 class I32Literal;
 class BinaryOp;
 
@@ -21,7 +21,7 @@ public:
     virtual void visit(Block& block) = 0;
     virtual void visit(LetExpr& expr) = 0;
     virtual void visit(Function& expr) = 0;
-    virtual void visit(Variable& var) = 0;
+    virtual void visit(Identifier& var) = 0;
     virtual void visit(I32Literal& literal) = 0;
     virtual void visit(BinaryOp& op) = 0;
 

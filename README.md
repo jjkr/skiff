@@ -1,15 +1,23 @@
 # Skiff
 A modern language for the web
 
+### Grammar
+
+```
+module
+letter ::= 'A'..'Z' | 'a'..'z' | '\x80'..'\xff'
+digit ::= '0'..'9'
+```
+
 ### Clang and LLVM
 
-##### Links
+#### Links
  * [LLVM Tutorial](http://llvm.org/docs/tutorial/index.html)
  * [LLVM Language Manual](http://llvm.org/docs/LangRef.html)
  * [LLVM Programmer's Manual](http://llvm.org/docs/ProgrammersManual.html)
  * [LLVM doxygen](http://llvm.org/docs/doxygen/html/index.html)
 
-##### Notes
+#### Notes
 
 Hello test file
 ```c

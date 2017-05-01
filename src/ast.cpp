@@ -27,7 +27,7 @@ Function::Function(string_view name, std::vector<string_view>&& parameters)
 {
 }
 
-LetExpr::LetExpr(unique_ptr<Variable>&& id, unique_ptr<Expr>&& expr)
+LetExpr::LetExpr(unique_ptr<Identifier>&& id, unique_ptr<Expr>&& expr)
     : m_identifier(*id), m_expr(*expr)
 {
     addChild(move(id));

@@ -67,11 +67,11 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 };
 
-class Variable : public Expr
+class Identifier : public Expr
 {
 public:
-    Variable(string_view name) : m_name(name) {}
-    virtual ~Variable() {}
+    Identifier(string_view name) : m_name(name) {}
+    virtual ~Identifier() {}
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     string_view getName() const { return m_name; }
@@ -125,24 +125,24 @@ private:
 class FunctionCall : public Expr
 {
 public:
-    FunctionCall(Function& func);
+    FunctionCall(std::unique_ptr<Identifier>&& funcId, std::vector<std::unique_ptr<Expr>>&& args);
 
 private:
-    Function& m_func;
-    std::vector<std::unique_ptr<Expr>> m_arguments;
+    Identifier& m_funcId;
+    std::vector<std::reference_wrapper<Expr>> m_arguments;
 };
 
 class LetExpr : public Expr
 {
 public:
-    LetExpr(std::unique_ptr<Variable>&& id, std::unique_ptr<Expr>&& expr);
+    LetExpr(std::unique_ptr<Identifier>&& id, std::unique_ptr<Expr>&& expr);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    Variable& getIdentifier() { return m_identifier; }
+    Identifier& getIdentifier() { return m_identifier; }
     Expr& getExpr() { return m_expr; }
 
 private:
-    Variable& m_identifier;
+    Identifier& m_identifier;
     Expr& m_expr;
 };
 

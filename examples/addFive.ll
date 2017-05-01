@@ -1,8 +1,8 @@
 ; ModuleID = 'addFive.sk'
 source_filename = "addFive.sk"
 
-define i32 @main(i32 %argc, i8** %argv) {
-  ret i32 %1
+define i32 @moduleMain(i32 %argc, i8** %argv) {
+  ret i32 0
 }
 
 define i32 @addFive(i32 %x) {

@@ -18,17 +18,18 @@ private:
     std::unique_ptr<Expr> parsePrimaryExpr();
     std::unique_ptr<Expr> parseParenExpression();
     std::unique_ptr<Expr> parseBinOpRhs(std::unique_ptr<Expr>&& lhs, int minPrecedence);
-    std::unique_ptr<Variable> parseIdentifier();
+    std::unique_ptr<Identifier> parseIdentifier();
     std::unique_ptr<Expr> parseNegativeNumber();
     std::unique_ptr<Expr> parseNumber();
     std::unique_ptr<Expr> parseFunctionDefinition();
     std::unique_ptr<Expr> parseLetExpression();
 
-    void consumeWhitespae();
-    void consumeToken();
+    void advance();
+    Token takeToken();
 
     Module& m_module;
     Lexer& m_lexer;
-    Token m_tok;
+    Token m_currentToken;
+    Token m_nextToken;
 };
 }

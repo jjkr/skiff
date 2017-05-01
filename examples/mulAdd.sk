@@ -1,0 +1,3 @@
+fn mulAdd(x, y, z) {
+  x * y + z
+}

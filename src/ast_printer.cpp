@@ -71,10 +71,10 @@ void AstPrinter::visit(Function& func)
     m_out << "}\n";
 }
 
-void AstPrinter::visit(Variable& var)
+void AstPrinter::visit(Identifier& var)
 {
     indent();
-    m_out << "Variable {" << var.getName() << "}\n";
+    m_out << "Identifier {" << var.getName() << "}\n";
 }
 
 void AstPrinter::visit(I32Literal& i32)

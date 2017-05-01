@@ -46,3 +46,19 @@ TEST(Parser, parsesFunction)
     Parser parser(module, lexer);
     parser.parse();
 }
+
+TEST(Parser, parsesUnaryFunction)
+{
+    Lexer lexer("fn ident(x) { x }");
+    Module module("");
+    Parser parser(module, lexer);
+    parser.parse();
+}
+
+TEST(Parser, parsesUnaryFunctionCall)
+{
+    Lexer lexer("foo(5)");
+    Module module("");
+    Parser parser(module, lexer);
+    parser.parse();
+}

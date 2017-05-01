@@ -107,9 +107,11 @@ void CodeGen::visit(Function& func)
     dispatch(func.getBlock());
 
     m_irBuilder.CreateRet(m_value);
+
+    m_value = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), 0);
 }
 
-void CodeGen::visit(Variable& variable)
+void CodeGen::visit(Identifier& variable)
 {
     logi << "Codegen::visit variable";
     auto val = m_symbols.find(variable.getName());

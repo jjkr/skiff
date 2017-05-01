@@ -1,1 +1,1 @@
-add_executable(runFoo runFoo.cpp simpleFunc.o)
+#add_executable(runFoo runFoo.cpp simpleFunc.o)
