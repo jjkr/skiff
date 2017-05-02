@@ -98,3 +98,15 @@ TEST(Lexer, lexesLet)
     EXPECT_EQ(TokenKind::WHITESPACE, lexer.take().getKind());
     EXPECT_EQ(TokenKind::NUMBER, lexer.take().getKind());
 }
+
+TEST(Lexer, lexesDoubleQuoteLiteral)
+{
+    Lexer lexer("\"hello skiff\"");
+    EXPECT_EQ(TokenKind::STRING_LITERAL, lexer.take().getKind());
+}
+
+TEST(Lexer, lexesSingleQuoteLiteral)
+{
+    Lexer lexer("\'hello skiff\'");
+    EXPECT_EQ(TokenKind::STRING_LITERAL, lexer.take().getKind());
+}

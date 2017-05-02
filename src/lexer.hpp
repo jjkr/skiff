@@ -14,6 +14,8 @@ enum class TokenKind
     IDENTIFIER,
     NUMBER,
 
+    STRING_LITERAL,
+
     COMMENT,
 
     FN,

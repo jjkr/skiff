@@ -159,6 +159,26 @@ Token Lexer::take()
             return makeToken(TokenKind::NUMBER);
         }
 
+        // String literal
+        case '\'':
+        {
+            while (current != '\'')
+            {
+                last = current;
+                current = advance();
+            }
+            return makeToken(TokenKind::STRING_LITERAL);
+        }
+        case '\"':
+        {
+            while (current != '\"')
+            {
+                current = advance();
+            }
+            advance();
+            return makeToken(TokenKind::STRING_LITERAL);
+        }
+
         // Identifiers
         case 'A' ... 'Z':
         case 'a' ... 'z':
@@ -174,7 +194,7 @@ Token Lexer::take()
 
         default:
             ostringstream ss;
-            ss << "Unknown byte: " << hex << current;
+            ss << "Unknown byte: " << hex << last;
             throw runtime_error(ss.str());
     }
 }
@@ -238,6 +258,9 @@ ostream& operator<<(ostream& os, TokenKind tokenType)
             break;
         case TokenKind::NUMBER:
             os << "NUMBER";
+            break;
+        case TokenKind::STRING_LITERAL:
+            os << "STRING_LITERAL";
             break;
         case TokenKind::FN:
             os << "FN";

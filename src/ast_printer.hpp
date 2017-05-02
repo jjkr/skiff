@@ -15,6 +15,7 @@ public:
     void visit(FunctionCall& call) override;
     void visit(Identifier& variable) override;
     void visit(I32Literal& i32Literal) override;
+    void visit(StringLiteral& i32Literal) override;
     void visit(BinaryOp& binOp) override;
 
 private:

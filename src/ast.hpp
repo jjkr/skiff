@@ -150,4 +150,14 @@ private:
     Expr& m_expr;
 };
 
+class StringLiteral : public Expr
+{
+public:
+    StringLiteral(string_view str) : m_str(str) {}
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+    string_view getString() const { return m_str; }
+private:
+    const string_view m_str;
+};
 }

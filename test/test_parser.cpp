@@ -1,64 +1,76 @@
 #include "ast.hpp"
 #include "parser.hpp"
+#include "source.hpp"
 #include "lexer.hpp"
 #include <gtest/gtest.h>
+#include <string>
 
 using sk::Token;
 using sk::Lexer;
+using sk::I32Literal;
 using sk::Module;
 using sk::Parser;
+using sk::SourceBuffer;
+using std::to_string;
+
+class ParserFixture : public ::testing::Test
+{
+public:
+    ParserFixture() : lexer(buffer), module("parserTest"), parser(module, lexer) {}
+
+protected:
+    SourceBuffer buffer;
+    Lexer lexer;
+    Module module;
+    Parser parser;
+};
 
 TEST(Parser, constructs)
 {
-    Lexer lexer("");
-    Module module("");
-    Parser parser(module, lexer);
 }
 
-TEST(Parser, parsesEmpty)
+TEST_F(ParserFixture, parsesEmpty)
 {
-    Lexer lexer("");
-    Module module("");
-    Parser parser(module, lexer);
     parser.parse();
 }
 
-TEST(Parser, parsesNumber)
+TEST_F(ParserFixture, parsesInt)
 {
-    Lexer lexer("23");
-    Module module("");
-    Parser parser(module, lexer);
+    auto n = 23;
+    buffer.addBlock(to_string(n));
+    parser.parse();
+    auto& expressions = module.getMainBlock().getExpressions();
+    EXPECT_EQ(1, expressions.size());
+    auto& intLiteral = dynamic_cast<I32Literal&>(expressions[0].get());
+    EXPECT_EQ(n, intLiteral.getValue());
+}
+
+TEST_F(ParserFixture, parsesPlusTimes)
+{
+    buffer.addBlock("23 + 7 * 32");
     parser.parse();
 }
 
-TEST(Parser, parsesPlusTimes)
+TEST_F(ParserFixture, parsesFunction)
 {
-    Lexer lexer("23 + 7 * 32");
-    Module module("");
-    Parser parser(module, lexer);
+    buffer.addBlock("fn foo(x, y) { 4 + 6 }");
     parser.parse();
 }
 
-TEST(Parser, parsesFunction)
+TEST_F(ParserFixture, parsesUnaryFunction)
 {
-    Lexer lexer("fn foo(x, y) { 4 + 6 }");
-    Module module("");
-    Parser parser(module, lexer);
+    buffer.addBlock("fn ident(x) { x }");
     parser.parse();
 }
 
-TEST(Parser, parsesUnaryFunction)
+TEST_F(ParserFixture, parsesUnaryFunctionCall)
 {
-    Lexer lexer("fn ident(x) { x }");
-    Module module("");
-    Parser parser(module, lexer);
+    buffer.addBlock("foo(5)");
     parser.parse();
 }
 
-TEST(Parser, parsesUnaryFunctionCall)
+TEST_F(ParserFixture, parsesStringLiteral)
 {
-    Lexer lexer("foo(5)");
-    Module module("");
-    Parser parser(module, lexer);
+    buffer.addBlock("\"foo\"");
     parser.parse();
 }

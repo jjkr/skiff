@@ -3,4 +3,6 @@ fn addFive(x) {
   y + 3
 }
 
+print("hello")
+
 addFive(8)

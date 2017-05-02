@@ -105,6 +105,12 @@ void AstPrinter::visit(I32Literal& i32)
     m_out << "I32Literal {" << i32.getValue() << "}\n";
 }
 
+void AstPrinter::visit(StringLiteral& srt)
+{
+    indent();
+    m_out << "StringLiteral {" << srt.getString() << "}\n";
+}
+
 void AstPrinter::visit(BinaryOp& binOp)
 {
     indent();

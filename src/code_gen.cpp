@@ -103,6 +103,7 @@ void CodeGen::visit(Function& func)
 
     m_functions[funcName] = llvmFunc;
 
+    auto oldInsertBlock = m_irBuilder.GetInsertBlock();
     auto oldInsertPoint = m_irBuilder.GetInsertPoint();
 
     auto bb = llvm::BasicBlock::Create(m_llvmContext, "entry", llvmFunc);
@@ -112,7 +113,7 @@ void CodeGen::visit(Function& func)
 
     m_irBuilder.CreateRet(m_value);
 
-    m_irBuilder.SetInsertPoint(&*oldInsertPoint);
+    m_irBuilder.SetInsertPoint(oldInsertBlock, oldInsertPoint);
 
     m_value = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), 0);
 }
@@ -156,6 +157,12 @@ void CodeGen::visit(I32Literal& lit)
 {
     logi << "Codegen::visit i32 literal";
     m_value = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), lit.getValue());
+}
+
+void CodeGen::visit(StringLiteral& str)
+{
+    logi << "Codegen::visit str literal";
+    //m_value = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), lit.getValue());
 }
 
 void CodeGen::visit(BinaryOp& binOp)

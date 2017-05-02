@@ -22,6 +22,7 @@ public:
     void visit(FunctionCall& call) override;
     void visit(Identifier& variable) override;
     void visit(I32Literal& i32Literal) override;
+    void visit(StringLiteral& str) override;
     void visit(BinaryOp& binOp) override;
 
     llvm::Value* getValue() { return m_value; }
