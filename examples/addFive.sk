@@ -3,6 +3,6 @@ fn addFive(x) {
   y + 3
 }
 
-print("hello")
+("hello")
 
 addFive(8)

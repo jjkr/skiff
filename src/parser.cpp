@@ -71,6 +71,8 @@ unique_ptr<Expr> Parser::parsePrimaryExpr()
             return parseIdExpression();
         case TokenKind::NUMBER:
             return parseNumber();
+        case TokenKind::STRING_LITERAL:
+            return parseStringLiteral();
         case TokenKind::MINUS:
             return parseNegativeNumber();
         case TokenKind::OPEN_PAREN:
@@ -171,6 +173,14 @@ unique_ptr<Expr> Parser::parseNegativeNumber()
 unique_ptr<Expr> Parser::parseNumber()
 {
     unique_ptr<Expr> expr(new I32Literal(stoi(m_currentToken.getStr().to_string())));
+    advance();
+    return expr;
+}
+
+std::unique_ptr<Expr> Parser::parseStringLiteral()
+{
+    auto tokenStr = m_currentToken.getStr();
+    unique_ptr<Expr> expr(new StringLiteral(tokenStr.substr(1, tokenStr.size() - 2)));
     advance();
     return expr;
 }

@@ -66,13 +66,17 @@ void Compiler::buildObjectFile()
         throw runtime_error(ss.str());
     }
 
-    auto targetTriple = llvm::sys::getDefaultTargetTriple();
     llvm::InitializeAllTargetInfos();
     llvm::InitializeAllTargets();
     llvm::InitializeAllTargetMCs();
     llvm::InitializeAllAsmParsers();
     llvm::InitializeAllAsmPrinters();
 
+    for (auto& target : llvm::TargetRegistry::targets())
+    {
+        logw << target.getName();
+    }
+    auto targetTriple = llvm::sys::getDefaultTargetTriple();
     string targetLookupError;
     auto target = llvm::TargetRegistry::lookupTarget(targetTriple, targetLookupError);
     if (!target)

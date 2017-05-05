@@ -22,6 +22,7 @@ private:
     std::unique_ptr<Identifier> parseIdentifier();
     std::unique_ptr<Expr> parseNegativeNumber();
     std::unique_ptr<Expr> parseNumber();
+    std::unique_ptr<Expr> parseStringLiteral();
     std::unique_ptr<Expr> parseFunctionDefinition();
     std::unique_ptr<Expr> parseLetExpression();
 

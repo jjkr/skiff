@@ -25,7 +25,6 @@ public:
     void visit(StringLiteral& str) override;
     void visit(BinaryOp& binOp) override;
 
-    llvm::Value* getValue() { return m_value; }
     llvm::Module& getLlvmModule() { return *m_module; }
 
 private:
