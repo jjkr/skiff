@@ -46,12 +46,12 @@ LetExpr::LetExpr(unique_ptr<Identifier>&& id, unique_ptr<Expr>&& expr)
     addChild(move(expr));
 }
 
-IfExpr::IfExpr(std::unique_ptr<Expr>&& condition, std::unique_ptr<Block>&& trueBlock,
-               std::unique_ptr<Block>&& falseBlock)
-    : m_condition(condition.get()), m_trueBlock(trueBlock.get()), m_falseBlock(falseBlock.get())
+IfExpr::IfExpr(std::unique_ptr<Expr>&& condition, std::unique_ptr<Block>&& thenBlock,
+               std::unique_ptr<Block>&& elseBlock)
+    : m_condition(condition.get()), m_thenBlock(thenBlock.get()), m_elseBlock(elseBlock.get())
 {
     addChild(move(condition));
-    addChild(move(trueBlock));
-    addChild(move(falseBlock));
+    addChild(move(thenBlock));
+    addChild(move(elseBlock));
 }
 }

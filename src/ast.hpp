@@ -158,13 +158,13 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     Expr* getCondition() { return m_condition; }
-    Block* getTrueBlock() { return m_trueBlock; }
-    Block* getFalseBlock() { return m_falseBlock; }
+    Block* getThenBlock() { return m_thenBlock; }
+    Block* getElseBlock() { return m_elseBlock; }
 
 private:
     Expr* m_condition;
-    Block* m_trueBlock;
-    Block* m_falseBlock;
+    Block* m_thenBlock;
+    Block* m_elseBlock;
 };
 
 class StringLiteral : public Expr

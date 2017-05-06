@@ -1,0 +1,5 @@
+fn recurse(x) {
+  recurse(x)
+}
+
+recurse(5)

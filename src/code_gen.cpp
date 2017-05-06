@@ -41,12 +41,13 @@ void CodeGen::visit(Module& module)
 {
     logi << "Codegen::visit module";
 
-
+    // puts function
     vector<llvm::Type*> putsParameters = { llvm::Type::getInt8PtrTy(m_llvmContext) };
     auto putsType =
         llvm::FunctionType::get(llvm::Type::getInt32Ty(m_llvmContext), move(putsParameters), false);
     auto putsFunc =
         llvm::Function::Create(putsType, llvm::Function::ExternalLinkage, "puts", m_module.get());
+
 
     vector<llvm::Type*> parameterList = {
         llvm::Type::getInt32Ty(m_llvmContext),
@@ -64,7 +65,8 @@ void CodeGen::visit(Module& module)
     m_irBuilder.SetInsertPoint(bb);
     dispatch(module.getMainBlock());
 
-    m_irBuilder.SetInsertPoint(bb);
+    //auto returnBlock = llvm::BasicBlock::Create(m_llvmContext, "", llvmFunc);
+    //m_irBuilder.SetInsertPoint(returnBlock);
     m_irBuilder.CreateRet(m_value);
 }
 
@@ -212,5 +214,36 @@ void CodeGen::visit(BinaryOp& binOp)
 void CodeGen::visit(IfExpr& expr)
 {
     logi << "Codegen::visit if";
+    dispatch(*expr.getCondition());
+
+    auto* zeroConstant = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), 0);
+    auto* cond = m_irBuilder.CreateICmpNE(m_value, zeroConstant);
+    auto* llvmFunc = m_irBuilder.GetInsertBlock()->getParent();
+    auto* thenBlock = llvm::BasicBlock::Create(m_llvmContext, "then", llvmFunc);
+    auto* elseBlock = llvm::BasicBlock::Create(m_llvmContext, "else");
+    auto* mergeBlock = llvm::BasicBlock::Create(m_llvmContext, "ifcont");
+    m_irBuilder.CreateCondBr(cond, thenBlock, elseBlock);
+
+    m_irBuilder.SetInsertPoint(thenBlock);
+    dispatch(*expr.getThenBlock());
+    auto* thenValue = m_value;
+    m_irBuilder.CreateBr(mergeBlock);
+    thenBlock = m_irBuilder.GetInsertBlock();
+
+    llvmFunc->getBasicBlockList().push_back(elseBlock);
+    m_irBuilder.SetInsertPoint(elseBlock);
+    dispatch(*expr.getElseBlock());
+    auto* elseValue = m_value;
+    m_irBuilder.CreateBr(mergeBlock);
+    elseBlock = m_irBuilder.GetInsertBlock();
+
+    llvmFunc->getBasicBlockList().push_back(mergeBlock);
+    m_irBuilder.SetInsertPoint(mergeBlock);
+    auto* phiNode = m_irBuilder.CreatePHI(Type::getInt32Ty(m_llvmContext), 2, "iftmp");
+
+    phiNode->addIncoming(thenValue, thenBlock);
+    phiNode->addIncoming(elseValue, elseBlock);
+
+    m_value = phiNode;
 }
 }

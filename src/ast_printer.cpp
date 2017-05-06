@@ -129,8 +129,8 @@ void AstPrinter::visit(IfExpr& expr)
     m_out << "IfExpr {\n";
     ++m_depth;
     dispatch(*expr.getCondition());
-    dispatch(*expr.getTrueBlock());
-    dispatch(*expr.getFalseBlock());
+    dispatch(*expr.getThenBlock());
+    dispatch(*expr.getElseBlock());
     --m_depth;
     indent();
     m_out << "}\n";
