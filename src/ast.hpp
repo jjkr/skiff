@@ -30,7 +30,7 @@ private:
 class Block : public AstNode
 {
 public:
-    Block(string_view name);
+    Block(string_view name = "");
     virtual ~Block() {}
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
@@ -148,6 +148,23 @@ public:
 private:
     Identifier& m_identifier;
     Expr& m_expr;
+};
+
+class IfExpr : public Expr
+{
+public:
+    IfExpr(std::unique_ptr<Expr>&& condition, std::unique_ptr<Block>&& trueBlock,
+           std::unique_ptr<Block>&& falseBlock);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+    Expr* getCondition() { return m_condition; }
+    Block* getTrueBlock() { return m_trueBlock; }
+    Block* getFalseBlock() { return m_falseBlock; }
+
+private:
+    Expr* m_condition;
+    Block* m_trueBlock;
+    Block* m_falseBlock;
 };
 
 class StringLiteral : public Expr

@@ -116,8 +116,21 @@ void AstPrinter::visit(BinaryOp& binOp)
     indent();
     m_out << "BinaryOp " << binOp.getType() << " {\n";
     ++m_depth;
-    binOp.getLhs().accept(*this);
-    binOp.getRhs(). accept(*this);
+    dispatch(binOp.getLhs());
+    dispatch(binOp.getRhs());
+    --m_depth;
+    indent();
+    m_out << "}\n";
+}
+
+void AstPrinter::visit(IfExpr& expr)
+{
+    indent();
+    m_out << "IfExpr {\n";
+    ++m_depth;
+    dispatch(*expr.getCondition());
+    dispatch(*expr.getTrueBlock());
+    dispatch(*expr.getFalseBlock());
     --m_depth;
     indent();
     m_out << "}\n";

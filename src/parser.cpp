@@ -81,6 +81,8 @@ unique_ptr<Expr> Parser::parsePrimaryExpr()
             return parseFunctionDefinition();
         case TokenKind::LET:
             return parseLetExpression();
+        case TokenKind::IF:
+            return parseIfExpression();
         default:
             return nullptr;
     }
@@ -253,6 +255,21 @@ unique_ptr<Expr> Parser::parseLetExpression()
     auto expr = parseExpression();
 
     return unique_ptr<Expr>(new LetExpr(move(id), move(expr)));
+}
+
+std::unique_ptr<Expr> Parser::parseIfExpression()
+{
+    advance(); // IF token
+    auto condition = parseExpression();
+    auto trueBlock = make_unique<Block>();
+    parseBlock(*trueBlock);
+    auto falseBlock = make_unique<Block>();
+    if (m_currentToken.getKind() == TokenKind::ELSE)
+    {
+        advance(); // ELSE token
+        parseBlock(*falseBlock);
+    }
+    return unique_ptr<Expr>(new IfExpr(move(condition), move(trueBlock), move(falseBlock)));
 }
 
 void Parser::advance()

@@ -208,4 +208,9 @@ void CodeGen::visit(BinaryOp& binOp)
             loge << "unknown operator: " << opType;
     }
 }
+
+void CodeGen::visit(IfExpr& expr)
+{
+    logi << "Codegen::visit if";
+}
 }

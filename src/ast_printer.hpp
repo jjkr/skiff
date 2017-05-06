@@ -17,6 +17,7 @@ public:
     void visit(I32Literal& i32Literal) override;
     void visit(StringLiteral& i32Literal) override;
     void visit(BinaryOp& binOp) override;
+    void visit(IfExpr& binOp) override;
 
 private:
     void indent();

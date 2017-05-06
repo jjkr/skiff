@@ -25,6 +25,7 @@ private:
     std::unique_ptr<Expr> parseStringLiteral();
     std::unique_ptr<Expr> parseFunctionDefinition();
     std::unique_ptr<Expr> parseLetExpression();
+    std::unique_ptr<Expr> parseIfExpression();
 
     void advance();
     Token takeToken();

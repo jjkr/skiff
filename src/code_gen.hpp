@@ -24,6 +24,7 @@ public:
     void visit(I32Literal& i32Literal) override;
     void visit(StringLiteral& str) override;
     void visit(BinaryOp& binOp) override;
+    void visit(IfExpr& expr) override;
 
     llvm::Module& getLlvmModule() { return *m_module; }
 

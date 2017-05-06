@@ -14,6 +14,7 @@ class Identifier;
 class I32Literal;
 class StringLiteral;
 class BinaryOp;
+class IfExpr;
 
 class AstVisitor
 {
@@ -28,6 +29,7 @@ public:
     virtual void visit(I32Literal& literal) = 0;
     virtual void visit(StringLiteral& literal) = 0;
     virtual void visit(BinaryOp& op) = 0;
+    virtual void visit(IfExpr& op) = 0;
 
     void dispatch(AstNode& node);
 };

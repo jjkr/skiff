@@ -75,4 +75,8 @@ TEST_F(ParserFixture, parsesStringLiteral)
     parser.parse();
 }
 
-
+TEST_F(ParserFixture, parsesIfStatement)
+{
+    buffer.addBlock("if 3 { 5 }");
+    parser.parse();
+}
