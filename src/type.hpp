@@ -5,7 +5,7 @@ namespace sk
 class Type
 {
 public:
-    
+    Type();
 
 };
 }
