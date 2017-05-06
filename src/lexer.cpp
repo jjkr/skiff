@@ -80,21 +80,22 @@ Lexer::Lexer(SourceBuffer& buffer) noexcept
 
 Token Lexer::take()
 {
-    auto last = currentChar();
-    if (last == '\0')
+    auto current = currentChar();
+    if (current == '\0')
     {
         return makeToken(TokenKind::END_OF_INPUT);
     }
-    auto current = advance();
-    switch (last)
+
+    auto next = advance();
+    switch (current)
     {
         // newline
         case '\r':
         case '\n':
         {
-            if ('\n' == current)
+            if ('\n' == next)
             {
-                current = advance();
+                advance();
             }
             const auto tok = makeToken(TokenKind::NEWLINE);
             ++m_line;
@@ -106,9 +107,9 @@ Token Lexer::take()
         case ' ':
         case '\t':
         {
-            while (current == ' ' || current == '\t')
+            while (next == ' ' || next == '\t')
             {
-                current = advance();
+                next = advance();
             }
             return makeToken(TokenKind::WHITESPACE);
         }
@@ -116,9 +117,9 @@ Token Lexer::take()
         case '#':
         {
             // Single line comments
-            while (current != '\r' && current != '\n' && current != '\0')
+            while (next != '\r' && next != '\n' && next != '\0')
             {
-                current = advance();
+                next = advance();
             }
             return makeToken(TokenKind::COMMENT);
         }
@@ -152,9 +153,9 @@ Token Lexer::take()
         // Integer constants
         case '0' ... '9':
         {
-            while (current >= '0' && current <= '9')
+            while (next >= '0' && next <= '9')
             {
-                current = advance();
+                next = advance();
             }
             return makeToken(TokenKind::NUMBER);
         }
@@ -162,18 +163,17 @@ Token Lexer::take()
         // String literal
         case '\'':
         {
-            while (current != '\'')
+            while (next != '\'')
             {
-                last = current;
-                current = advance();
+                next = advance();
             }
             return makeToken(TokenKind::STRING_LITERAL);
         }
         case '\"':
         {
-            while (current != '\"')
+            while (next != '\"')
             {
-                current = advance();
+                next = advance();
             }
             advance();
             return makeToken(TokenKind::STRING_LITERAL);
@@ -183,18 +183,18 @@ Token Lexer::take()
         case 'A' ... 'Z':
         case 'a' ... 'z':
         {
-            while ((current >= 'A' && current <= 'Z') ||
-                   (current >= 'a' && current <= 'z') ||
-                   (current >= '0' && current <= '9'))
+            while ((next >= 'A' && next <= 'Z') ||
+                   (next >= 'a' && next <= 'z') ||
+                   (next >= '0' && next <= '9'))
             {
-                current = advance();
+                next = advance();
             }
             return makeToken(identifierType(m_sourceBuffer.getString(m_tokStart, m_tokSize)));
         }
 
         default:
             ostringstream ss;
-            ss << "Unknown byte: " << hex << last;
+            ss << "Unknown byte: " << hex << current;
             throw runtime_error(ss.str());
     }
 }

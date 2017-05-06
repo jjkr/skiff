@@ -1,0 +1,4 @@
+import io
+
+let s = "Hello Skiff!"
+io.puts(s)

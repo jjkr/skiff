@@ -1,8 +1,10 @@
+fn id(x) { x }
+
 fn addFive(x) {
   let y = x + 2
   y + 3
 }
 
-("hello")
+id("hello")
 
 addFive(8)

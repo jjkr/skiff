@@ -17,7 +17,7 @@ namespace sk
 class SourceBuffer
 {
 public:
-    static constexpr auto DEFAULT_BLOCK_SIZE = 4u << 10;
+    static constexpr auto DEFAULT_BLOCK_SIZE = 4096;
 
     /**
      * Constructs a SourceBuffer with a copy of the input string
@@ -28,8 +28,7 @@ public:
      * @param filename
      * @return
      */
-    static std::unique_ptr<SourceBuffer> readFile(const char* filename,
-                                                  size_t blockSize = DEFAULT_BLOCK_SIZE);
+    static SourceBuffer readFile(const char* filename, size_t blockSize = DEFAULT_BLOCK_SIZE);
 
     std::vector<char>& makeBlock(size_t size = DEFAULT_BLOCK_SIZE);
     void addBlock(std::vector<char>&& block);

@@ -28,16 +28,35 @@ using std::regex;
 using std::regex_replace;
 using std::string;
 
+namespace
+{
+void initLlvmTargets()
+{
+    static bool hasRun = false;
+    if (!hasRun)
+    {
+        hasRun = true;
+
+        llvm::InitializeAllTargetInfos();
+        llvm::InitializeAllTargets();
+        llvm::InitializeAllTargetMCs();
+        llvm::InitializeAllAsmParsers();
+        llvm::InitializeAllAsmPrinters();
+    }
+}
+}
+
 namespace sk
 {
 Compiler::Compiler(const char* filename)
     : m_filename(filename),
       m_source(SourceBuffer::readFile(filename)),
-      m_lexer(*m_source),
+      m_lexer(m_source),
       m_module(filename),
       m_parser(m_module, m_lexer),
       m_codeGen(filename)
 {
+    initLlvmTargets();
 }
 
 void Compiler::compile()
@@ -64,17 +83,6 @@ void Compiler::buildObjectFile()
         ostringstream ss;
         ss << "Failed to open file: " << err.message();
         throw runtime_error(ss.str());
-    }
-
-    llvm::InitializeAllTargetInfos();
-    llvm::InitializeAllTargets();
-    llvm::InitializeAllTargetMCs();
-    llvm::InitializeAllAsmParsers();
-    llvm::InitializeAllAsmPrinters();
-
-    for (auto& target : llvm::TargetRegistry::targets())
-    {
-        logw << target.getName();
     }
     auto targetTriple = llvm::sys::getDefaultTargetTriple();
     string targetLookupError;

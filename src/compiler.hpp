@@ -22,7 +22,7 @@ public:
 
 private:
     const char* const m_filename;
-    std::unique_ptr<SourceBuffer> m_source;
+    SourceBuffer m_source;
     Lexer m_lexer;
     Module m_module;
     Parser m_parser;

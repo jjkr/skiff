@@ -74,3 +74,5 @@ TEST_F(ParserFixture, parsesStringLiteral)
     buffer.addBlock("\"foo\"");
     parser.parse();
 }
+
+

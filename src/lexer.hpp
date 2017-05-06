@@ -70,6 +70,7 @@ class Lexer
 {
 public:
     Lexer(string_view sourceStr) noexcept;
+    Lexer(std::unique_ptr<SourceBuffer>&& buffer) noexcept;
     Lexer(SourceBuffer& buffer) noexcept;
 
     Token take();
@@ -85,11 +86,11 @@ private:
     char currentChar();
 
     // current token state
-    uint32_t m_tokStart = 0u; // Source offset in bytes
-    uint32_t m_tokSize = 0u;
+    int m_tokStart = 0; // Source offset in bytes
+    int m_tokSize = 0;
 
     // byte is 0-based
-    uint32_t m_byte = 0u;
+    int m_byte = 0;
     // line and col are 1-based
     int m_line = 1;
     int m_col = 1;

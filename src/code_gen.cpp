@@ -6,6 +6,7 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/GlobalVariable.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
@@ -14,6 +15,7 @@
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -23,6 +25,7 @@ using std::make_unique;
 using std::move;
 using std::ostringstream;
 using std::runtime_error;
+using std::string;
 using std::vector;
 
 namespace sk
@@ -37,6 +40,13 @@ CodeGen::CodeGen(string_view sourceFile)
 void CodeGen::visit(Module& module)
 {
     logi << "Codegen::visit module";
+
+
+    vector<llvm::Type*> putsParameters = { llvm::Type::getInt8PtrTy(m_llvmContext) };
+    auto putsType =
+        llvm::FunctionType::get(llvm::Type::getInt32Ty(m_llvmContext), move(putsParameters), false);
+    auto putsFunc =
+        llvm::Function::Create(putsType, llvm::Function::ExternalLinkage, "puts", m_module.get());
 
     vector<llvm::Type*> parameterList = {
         llvm::Type::getInt32Ty(m_llvmContext),
@@ -162,7 +172,13 @@ void CodeGen::visit(I32Literal& lit)
 void CodeGen::visit(StringLiteral& str)
 {
     logi << "Codegen::visit str literal";
-    //m_value = ConstantInt::getSigned(Type::getInt32Ty(m_llvmContext), lit.getValue());
+    auto stringType =
+        llvm::ArrayType::get(Type::getInt8Ty(m_llvmContext), str.getString().length() + 1);
+    auto literal = str.getString();
+    auto llvmConst =
+        llvm::ConstantDataArray::getString(m_llvmContext, {literal.data(), literal.size()});
+    m_value = new llvm::GlobalVariable(*m_module, stringType, true,
+                                       llvm::GlobalValue::CommonLinkage, llvmConst);
 }
 
 void CodeGen::visit(BinaryOp& binOp)
