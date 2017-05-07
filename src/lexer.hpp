@@ -27,16 +27,13 @@ enum class TokenKind
 
     OPERATOR,
 
-    /*PLUS,
-    TIMES,
-    DIV,
-    MINUS,
-    EQUALS,*/
-
     OPEN_PAREN,
     CLOSE_PAREN,
     OPEN_BRACE,
     CLOSE_BRACE,
+    OPEN_BRACKET,
+    CLOSE_BRACKET,
+    COLON,
     COMMA
 };
 

@@ -51,20 +51,9 @@ void AstPrinter::visit(Function& func)
 {
     indent();
     ++m_depth;
-    m_out << "Function " << func.getName() << "(";
+    m_out << "Function " << func.getName();
     auto first = true;
-    for (auto& arg : func.getParameters()) {
-        if (first)
-        {
-            first = false;
-        }
-        else
-        {
-            m_out << ", ";
-        }
-        m_out << arg;
-    }
-    m_out << ") {\n";
+    dispatch(func.getArgumentMatch());
     dispatch(func.getBlock());
     --m_depth;
     indent();
@@ -134,6 +123,30 @@ void AstPrinter::visit(IfExpr& expr)
     --m_depth;
     indent();
     m_out << "}\n";
+}
+
+void AstPrinter::visit(Match& match)
+{
+    indent();
+    m_out << "Match\n";
+}
+
+void AstPrinter::visit(IdMatch& match)
+{
+    indent();
+    m_out << "IdMatch\n";
+}
+
+void AstPrinter::visit(TupleMatch& match)
+{
+    indent();
+    m_out << "TupleMatch\n";
+}
+
+void AstPrinter::visit(TypeMatch& match)
+{
+    indent();
+    m_out << "TypeMatch\n";
 }
 
 void AstPrinter::indent()

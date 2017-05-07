@@ -25,6 +25,10 @@ public:
     void visit(StringLiteral& str) override;
     void visit(BinaryOp& binOp) override;
     void visit(IfExpr& expr) override;
+    void visit(Match& match) override;
+    void visit(IdMatch& match) override;
+    void visit(TupleMatch& match) override;
+    void visit(TypeMatch& match) override;
 
     llvm::Module& getLlvmModule() { return *m_module; }
 

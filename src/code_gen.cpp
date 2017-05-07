@@ -95,7 +95,7 @@ void CodeGen::visit(Function& func)
 {
     logi << "Codegen::visit func";
     vector<llvm::Type*> parameterList;
-    for (auto i = 0u; i < func.getParameters().size(); ++i)
+    for (auto& m : func.getArgumentMatch().matches())
     {
         parameterList.push_back(llvm::Type::getInt32Ty(m_llvmContext));
     }
@@ -106,11 +106,12 @@ void CodeGen::visit(Function& func)
                                            llvm::StringRef(funcName.data(), funcName.size()),
                                            m_module.get());
     auto arg = llvmFunc->args().begin();
-    for (auto i = 0u; i < func.getParameters().size(); ++i, ++arg)
+    for (auto& m : func.getArgumentMatch().matches())
     {
-        auto paramName = func.getParameters()[i];
-        arg->setName(llvm::StringRef(paramName.data(), paramName.size()));
-        m_symbols[paramName] = &*arg;
+        auto& idMatch = dynamic_cast<const IdMatch&>(m.get());
+        auto name = idMatch.getId().getName();
+        arg->setName(llvm::StringRef(name.data(), name.size()));
+        m_symbols[name] = &*arg;
     }
 
     m_functions[funcName] = llvmFunc;
@@ -245,5 +246,25 @@ void CodeGen::visit(IfExpr& expr)
     phiNode->addIncoming(elseValue, elseBlock);
 
     m_value = phiNode;
+}
+
+void CodeGen::visit(Match& match)
+{
+    logi << "Codegen::visit match";
+}
+
+void CodeGen::visit(IdMatch& match)
+{
+    logi << "Codegen::visit id match";
+}
+
+void CodeGen::visit(TupleMatch& match)
+{
+    logi << "Codegen::visit template match";
+}
+
+void CodeGen::visit(TypeMatch& match)
+{
+    logi << "Codegen::visit type match";
 }
 }

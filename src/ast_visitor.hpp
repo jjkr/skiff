@@ -15,6 +15,10 @@ class I32Literal;
 class StringLiteral;
 class BinaryOp;
 class IfExpr;
+class Match;
+class IdMatch;
+class TupleMatch;
+class TypeMatch;
 
 class AstVisitor
 {
@@ -30,6 +34,10 @@ public:
     virtual void visit(StringLiteral& literal) = 0;
     virtual void visit(BinaryOp& op) = 0;
     virtual void visit(IfExpr& op) = 0;
+    virtual void visit(Match& match) = 0;
+    virtual void visit(IdMatch& match) = 0;
+    virtual void visit(TupleMatch& match) = 0;
+    virtual void visit(TypeMatch& match) = 0;
 
     void dispatch(AstNode& node);
 };

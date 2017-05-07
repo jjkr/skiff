@@ -2,6 +2,7 @@
 #include "util/logger.hpp"
 #include <ostream>
 #include <stdexcept>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -9,6 +10,7 @@
 using std::endl;
 using std::make_unique;
 using std::move;
+using std::ostringstream;
 using std::runtime_error;
 using std::stoi;
 using std::swap;
@@ -118,6 +120,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
 
 unique_ptr<Identifier> Parser::parseIdentifier()
 {
+    expectToken(TokenKind::IDENTIFIER);
     auto expr = make_unique<Identifier>(m_currentToken.getStr());
     advance();
     return expr;
@@ -200,43 +203,9 @@ std::unique_ptr<Expr> Parser::parseStringLiteral()
 unique_ptr<Expr> Parser::parseFunctionDefinition()
 {
     advance(); // FN token
-    if (m_currentToken.getKind() != TokenKind::IDENTIFIER)
-    {
-        loge << "Unexpected token " << m_currentToken << ", expected IDENTIFIER";
-        throw runtime_error("Unexpected token");
-    }
-    auto name = m_currentToken.getStr();
-    advance();
-    vector<string_view> parameters;
-    if (m_currentToken.getKind() == TokenKind::OPEN_PAREN)
-    {
-        advance(); // ( token
-        if (m_currentToken.getKind() != TokenKind::CLOSE_PAREN)
-        {
-            while (true)
-            {
-                if (m_currentToken.getKind() != TokenKind::IDENTIFIER)
-                {
-                    loge << "Unexpected token " << m_currentToken << ", expected IDENTIFIER";
-                    throw runtime_error("Unexpected token");
-                }
-                parameters.push_back(m_currentToken.getStr());
-                advance();
-                if (m_currentToken.getKind() == TokenKind::CLOSE_PAREN)
-                {
-                    advance();
-                    break;
-                }
-                if (m_currentToken.getKind() != TokenKind::COMMA)
-                {
-                    loge << "Unexpected token " << m_currentToken << ", expected COMMA";
-                    throw runtime_error("Unexpected token");
-                }
-                advance();
-            }
-        }
-    }
-    auto func = std::make_unique<Function>(name, move(parameters));
+    auto id = parseIdentifier();
+    auto parameterPattern = parseTupleMatch();
+    auto func = std::make_unique<Function>(move(id), move(parameterPattern));
     parseBlock(func->getBlock());
     return unique_ptr<Expr>(move(func));
 }
@@ -280,6 +249,68 @@ std::unique_ptr<Expr> Parser::parseIfExpression()
         parseBlock(*falseBlock);
     }
     return unique_ptr<Expr>(new IfExpr(move(condition), move(trueBlock), move(falseBlock)));
+}
+
+unique_ptr<Match> Parser::parseMatch()
+{
+    switch (m_currentToken.getKind())
+    {
+        case TokenKind::OPEN_PAREN:
+            return parseTupleMatch();
+        case TokenKind::IDENTIFIER:
+            return parseIdMatch();
+        default:
+            return nullptr;
+    }
+}
+
+unique_ptr<TupleMatch> Parser::parseTupleMatch()
+{
+    expectToken(TokenKind::OPEN_PAREN);
+    advance(); // ( token
+    vector<unique_ptr<Match>> subMatches;
+    if (m_currentToken.getKind() != TokenKind::CLOSE_PAREN)
+    {
+        while (true)
+        {
+            subMatches.push_back(parseMatch());
+            if (m_currentToken.getKind() == TokenKind::CLOSE_PAREN)
+            {
+                advance(); // CLOSE_PAREN
+                break;
+            }
+            expectToken(TokenKind::COMMA);
+            advance(); // COMMA
+        }
+    }
+    return make_unique<TupleMatch>(move(subMatches));
+}
+
+unique_ptr<Match> Parser::parseIdMatch()
+{
+    auto id = parseIdentifier();
+    unique_ptr<TypeMatch> typeMatch;
+    if (m_currentToken.getKind() == TokenKind::COLON)
+    {
+        typeMatch = parseTypeMatch();
+    }
+    return make_unique<IdMatch>(move(id), move(typeMatch));
+}
+
+std::unique_ptr<TypeMatch> Parser::parseTypeMatch()
+{
+    auto typeId = parseIdentifier();
+    return make_unique<TypeMatch>(move(typeId));
+}
+
+void Parser::expectToken(const TokenKind expected)
+{
+    if (m_currentToken.getKind() != expected)
+    {
+        ostringstream ss;
+        ss << "Unexpected token " << m_currentToken << ", expected " << expected;
+        throw runtime_error(ss.str());
+    }
 }
 
 void Parser::advance()

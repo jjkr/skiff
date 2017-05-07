@@ -1,8 +1,11 @@
 #include "ast.hpp"
 #include "util/logger.hpp"
+#include <cassert>
 
 using std::move;
 using std::make_unique;
+using std::ref;
+using std::reference_wrapper;
 using std::unique_ptr;
 using std::vector;
 
@@ -14,6 +17,27 @@ Block::Block(string_view name) : m_name(name)
 
 Module::Module(string_view name) : m_name(name), m_mainBlock("")
 {
+}
+
+TypeMatch::TypeMatch(std::unique_ptr<Identifier>&& id) : m_typeId(*id)
+{
+    addChild(move(id));
+}
+
+IdMatch::IdMatch(unique_ptr<Identifier>&& id, unique_ptr<TypeMatch>&& typeMatch)
+    : m_id(*id), m_typeMatch(typeMatch.get())
+{
+    addChild(move(id));
+    addChild(move(id));
+}
+
+TupleMatch::TupleMatch(vector<unique_ptr<Match>>&& matches)
+{
+    for (auto& m : matches)
+    {
+        m_matches.push_back(ref(*m));
+        addChild(move(m));
+    }
 }
 
 BinaryOp::BinaryOp(Token token, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rhs)
@@ -28,9 +52,18 @@ UnaryOp::UnaryOp(Token token, std::unique_ptr<Expr>&& arg) : m_token(token), m_a
     addChild(move(arg));
 };
 
-Function::Function(string_view name, std::vector<string_view>&& parameters)
-    : m_name(name), m_parameters(move(parameters)), m_block("entry")
+Function::Function(unique_ptr<Identifier>&& id, unique_ptr<TupleMatch>&& args)
+    : m_id(id.get()), m_argMatch(args.get())
 {
+    assert(m_id);
+    assert(m_argMatch);
+
+    auto block = make_unique<Block>();
+    m_block = block.get();
+
+    addChild(move(id));
+    addChild(move(args));
+    addChild(move(block));
 }
 
 FunctionCall::FunctionCall(std::unique_ptr<Identifier>&& funcId,

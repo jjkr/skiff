@@ -18,6 +18,10 @@ public:
     void visit(StringLiteral& i32Literal) override;
     void visit(BinaryOp& binOp) override;
     void visit(IfExpr& binOp) override;
+    void visit(Match& match) override;
+    void visit(IdMatch& match) override;
+    void visit(TupleMatch& match) override;
+    void visit(TypeMatch& match) override;
 
 private:
     void indent();

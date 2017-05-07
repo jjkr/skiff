@@ -191,6 +191,10 @@ Token Lexer::take()
             return makeToken(TokenKind::OPEN_BRACE);
         case '}':
             return makeToken(TokenKind::CLOSE_BRACE);
+        case '[':
+            return makeToken(TokenKind::OPEN_BRACKET);
+        case ']':
+            return makeToken(TokenKind::CLOSE_BRACKET);
 
         case ',':
             return makeToken(TokenKind::COMMA);
@@ -373,6 +377,14 @@ ostream& operator<<(ostream& os, TokenKind tokenType)
         case TokenKind::CLOSE_BRACE:
             os << "CLOSE_BRACE";
             break;
+        case TokenKind::OPEN_BRACKET:
+            os << "OPEN_BRACKET";
+            break;
+        case TokenKind::CLOSE_BRACKET:
+            os << "CLOSE_BRACKET";
+            break;
+        case TokenKind::COLON:
+            os << "COLON";
         case TokenKind::COMMA:
             os << "COMMA";
             break;

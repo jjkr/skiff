@@ -26,6 +26,12 @@ private:
     std::unique_ptr<Expr> parseFunctionDefinition();
     std::unique_ptr<Expr> parseLetExpression();
     std::unique_ptr<Expr> parseIfExpression();
+    std::unique_ptr<Match> parseMatch();
+    std::unique_ptr<Match> parseIdMatch();
+    std::unique_ptr<TupleMatch> parseTupleMatch();
+    std::unique_ptr<TypeMatch> parseTypeMatch();
+
+    void expectToken(TokenKind expected);
 
     void advance();
     Token takeToken();

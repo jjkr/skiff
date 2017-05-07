@@ -1,11 +1,13 @@
 #pragma once
 #include "ast_visitor.hpp"
 #include "lexer.hpp"
+#include "util/util.hpp"
 #include "util/visitor.hpp"
 #include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
+#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -18,13 +20,29 @@ public:
     virtual ~AstNode() {}
     virtual void accept(AstVisitor& visitor) = 0;
 
-    std::vector<std::unique_ptr<AstNode>>& children() { return m_children; }
-    const std::vector<std::unique_ptr<AstNode>>& children() const { return m_children; }
+    UniquePtrVector<AstNode>& children() { return m_children; }
+    const UniquePtrVector<AstNode>& children() const { return m_children; }
 
-    void addChild(std::unique_ptr<AstNode>&& child) { m_children.push_back(std::move(child)); }
+    void addChild(std::unique_ptr<AstNode>&& child)
+    {
+        if (child)
+        {
+            child->m_parent = this;
+        }
+        m_children.push_back(std::move(child));
+    }
+    void addChildren(UniquePtrVector<AstNode>&& children)
+    {
+        for (auto& c : children)
+        {
+            c->m_parent = this;
+        }
+        m_children = std::move(children);
+    }
 
 private:
-    std::vector<std::unique_ptr<AstNode>> m_children;
+    AstNode* m_parent;
+    UniquePtrVector<AstNode> m_children;
 };
 
 class Block : public AstNode
@@ -35,13 +53,13 @@ public:
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     string_view getName() const { return m_name; }
-    std::vector<std::reference_wrapper<Expr>>& getExpressions() { return m_expressions; }
+    RefVector<Expr>& getExpressions() { return m_expressions; }
 
 private:
     //std::map<std::string, std::reference_wrapper<Expr>> m_variables;
-    //std::vector<std::unique_ptr<Function>> functions;
+    //UniquePtrVector<Function> functions;
     const string_view m_name;
-    std::vector<std::reference_wrapper<Expr>> m_expressions;
+    RefVector<Expr> m_expressions;
 };
 
 class Module : public AstNode
@@ -58,6 +76,49 @@ public:
 private:
     const string_view m_name;
     Block m_mainBlock;
+};
+
+class Match : public AstNode
+{
+public:
+
+};
+
+class TypeMatch : public Match
+{
+public:
+    TypeMatch(std::unique_ptr<Identifier>&& id);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+private:
+    Identifier& m_typeId;
+};
+
+class IdMatch : public Match
+{
+public:
+    IdMatch(std::unique_ptr<Identifier>&& id, std::unique_ptr<TypeMatch>&& typeMatch);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+    Identifier& getId() { return m_id; }
+    const Identifier& getId() const { return m_id; }
+
+private:
+    Identifier& m_id;
+    TypeMatch* m_typeMatch;
+};
+
+class TupleMatch : public Match
+{
+public:
+    TupleMatch(UniquePtrVector<Match>&& matches = {});
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+    using MatchIter = RefVector<Match>::const_iterator;
+
+    const RefVector<Match>& matches() const { return m_matches; }
+
+private:
+    RefVector<Match> m_matches;
 };
 
 class Expr : public AstNode
@@ -125,31 +186,31 @@ private:
 class Function : public Expr
 {
 public:
-    Function(string_view name, std::vector<string_view>&& parameters);
+    Function(std::unique_ptr<Identifier>&& id, std::unique_ptr<TupleMatch>&& args);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    string_view getName() const { return m_name; }
-    std::vector<string_view>& getParameters() { return m_parameters; }
-    Block& getBlock() { return m_block; }
+    string_view getName() const { return m_id->getName(); }
+    TupleMatch& getArgumentMatch() const { return *m_argMatch; }
+    Block& getBlock() { return *m_block; }
 
 private:
-    const string_view m_name;
-    std::vector<string_view> m_parameters;
-    Block m_block;
+    Identifier* m_id;
+    TupleMatch* m_argMatch;
+    Block* m_block;
 };
 
 class FunctionCall : public Expr
 {
 public:
-    FunctionCall(std::unique_ptr<Identifier>&& funcId, std::vector<std::unique_ptr<Expr>>&& args);
+    FunctionCall(std::unique_ptr<Identifier>&& funcId, UniquePtrVector<Expr>&& args);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
     Identifier& getId() { return m_funcId; }
-    std::vector<std::reference_wrapper<Expr>>& getArguments() { return m_arguments; }
+    RefVector<Expr>& getArguments() { return m_arguments; }
 
 private:
     Identifier& m_funcId;
-    std::vector<std::reference_wrapper<Expr>> m_arguments;
+    RefVector<Expr> m_arguments;
 };
 
 class LetExpr : public Expr

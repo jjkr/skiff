@@ -8,4 +8,5 @@ class Type
 public:
     Type(string_view name);
 };
+
 }
