@@ -3,6 +3,52 @@ A modern language for the web
 
 ### Grammar
 
+
+#### Lexer
+```
+# Whitespace
+SPACE = ' '+
+NEWLINE = '\n' | '\r\n'
+
+# Comment
+COMMENT = '#' utf8* NEWLINE
+
+# Keywords
+FN = 'fn'
+LET = 'let'
+MATCH = 'match'
+CLASS = 'class'
+AND = 'and'
+OR = 'or'
+NOT = 'not'
+XOR = 'xor'
+
+# Operators mostly follow Nim Lang
+op_char = '=' | '+' | '-' | '*' | '/' | '<' | '>'
+          '@' | '$' | '~' | '&' | '%' | '|'
+          '!' | '?' | '^' | '.' | ':' | '\'
+OP0 = (op_char)* '>' # 'arrow like'
+OP1 = (op_char)* '=' # 'assignment operator'
+OP2 = ('@' | ':' | '?') (op_char)*
+OP5 = ('=' | '<' | '>' | '!') (op_char)*
+OP6 = '.' (op_char)*
+OP7 = '&' (op_char)*
+OP8 = ('+' | '-' | '~' | '|') (op_char)*
+OP9 = ('*' | '%' | '\' | '/') (op_char)*
+OP10 = ('$' | '^') (op_char)*
+
+
+digit = '0'..'9'
+hexdigit = digit | 'A'..'F' | 'a'..'f'
+octdigit = '0'..'7'
+bindigit = '0'..'1'
+DEC_LIT = digit ( ['_'] digit )*
+
+INT_LIT = HEX_LIT | DEC_LIT
+
+IDENTIFIER = ^( op_char | digit | WHITESPACE | NEWLINE ) ^( op_char )*
+```
+
 ```
 module
 letter ::= 'A'..'Z' | 'a'..'z' | '\x80'..'\xff'

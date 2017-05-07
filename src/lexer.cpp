@@ -55,6 +55,10 @@ const unordered_map<string_view, TokenKind> keywords = {
     {"if", TokenKind::IF},
     {"else", TokenKind::ELSE},
     {"for", TokenKind::FOR},
+    {"and", TokenKind::AND},
+    {"or", TokenKind::OR},
+    {"not", TokenKind::NOT},
+    {"xor", TokenKind::XOR},
     {"while", TokenKind::WHILE}
 };
 
@@ -151,7 +155,7 @@ Token Lexer::take()
         case '\r':
         case '\n':
         {
-            if ('\n' == next)
+            if (current == '\r' && '\n' == next)
             {
                 advance();
             }

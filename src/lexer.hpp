@@ -26,6 +26,10 @@ enum class TokenKind
     WHILE,
 
     OPERATOR,
+    AND,
+    OR,
+    NOT,
+    XOR,
 
     OPEN_PAREN,
     CLOSE_PAREN,
