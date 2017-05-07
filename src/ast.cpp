@@ -16,8 +16,8 @@ Module::Module(string_view name) : m_name(name), m_mainBlock("")
 {
 }
 
-BinaryOp::BinaryOp(TokenKind kind, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rhs)
-    : m_kind(kind), m_lhs(*lhs), m_rhs(*rhs)
+BinaryOp::BinaryOp(Token token, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rhs)
+    : m_token(token), m_lhs(*lhs), m_rhs(*rhs)
 {
     addChild(move(lhs));
     addChild(move(rhs));

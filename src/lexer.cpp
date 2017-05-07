@@ -16,6 +16,36 @@ using std::unordered_map;
 
 namespace
 {
+
+bool isOperatorChar(char c)
+{
+    switch (c)
+    {
+        case '=':
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '<':
+        case '>':
+        case '@':
+        case '$':
+        case '~':
+        case '&':
+        case '%':
+        case '|':
+        case '!':
+        case '?':
+        case '^':
+        case '.':
+        case ':':
+        case '\\':
+            return true;
+        default:
+            return false;
+    }
+}
+
 using sk::Token;
 using sk::TokenKind;
 using sk::string_view;
@@ -37,28 +67,56 @@ TokenKind identifierType(string_view id)
 
 namespace sk
 {
-bool Token::isWhitespace() const
+/*
+ * Precedence level | Operators                                  | First character | Terminal symbol
+ *   10 (highest)   |                                            | $ ^             |  OP10
+ *   9              | * / div mod shl shr %                      | * % \ /         |  OP9
+ *   8              | + -                                        | + - ~ |         |  OP8
+ *   7              | &                                          | &               |  OP7
+ *   6              | ..                                         | .               |  OP6
+ *   5              | == <= < >= > != in notin is isnot not of   | = < > !         |  OP5
+ *   4              | and                                        |                 |  OP4
+ *   3              | or xor                                     |                 |  OP3
+ *   2              |                                            | @ : ?           |  OP2
+ *   1              | assignment operator (like +=, *=)          |                 |  OP1
+ *   0 (lowest)     | arrow like operator (like ->, =>)          |                 |  OP0
+ * @param token
+ * @return
+ */
+int getTokenPrecedence(Token& token)
 {
-    switch (m_kind)
+    if (token.getKind() != TokenKind::OPERATOR)
     {
-        case TokenKind::WHITESPACE:
-        case TokenKind::NEWLINE:
-            return true;
-        default:
-            return false;
+        return -1;
     }
-}
-
-int getTokenPrecedence(TokenKind tokenType)
-{
-    switch (tokenType)
+    switch (token.getStr()[0])
     {
-        case TokenKind::PLUS:
-        case TokenKind::MINUS:
+        case '$':
+        case '^':
             return 10;
-        case TokenKind::TIMES:
-        case TokenKind::DIV:
-            return 20;
+        case '*':
+        case '/':
+        case '%':
+        case '\\':
+            return 9;
+        case '+':
+        case '-':
+        case '~':
+        case '|':
+            return 8;
+        case '&':
+            return 7;
+        case '.':
+            return 6;
+        case '=':
+        case '<':
+        case '>':
+        case '!':
+            return 5;
+        case '@':
+        case ':':
+        case '?':
+            return 2;
         default:
             return -1;
     }
@@ -137,18 +195,38 @@ Token Lexer::take()
         case ',':
             return makeToken(TokenKind::COMMA);
 
-        // Operators
-        case '+':
-            return makeToken(TokenKind::PLUS);
-        case '*':
-            return makeToken(TokenKind::TIMES);
-        case '/':
-            return makeToken(TokenKind::DIV);
-        case '-':
-            return makeToken(TokenKind::MINUS);
-
+        //
+        // Operators are any combination of these characters
+        //      =    +     -     *     /     <     >
+        //      @     $     ~     &     %     |
+        //      !     ?     ^     .     :     \
+        //
         case '=':
-            return makeToken(TokenKind::EQUALS);
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '<':
+        case '>':
+        case '@':
+        case '$':
+        case '~':
+        case '&':
+        case '%':
+        case '|':
+        case '!':
+        case '?':
+        case '^':
+        case '.':
+        case ':':
+        case '\\':
+        {
+            while (isOperatorChar(next))
+            {
+                next = advance();
+            }
+            return makeToken(TokenKind::OPERATOR);
+        }
 
         // Integer constants
         case '0' ... '9':
@@ -280,20 +358,8 @@ ostream& operator<<(ostream& os, TokenKind tokenType)
         case TokenKind::WHILE:
             os << "WHILE";
             break;
-        case TokenKind::PLUS:
-            os << "PLUS";
-            break;
-        case TokenKind::MINUS:
-            os << "MINUS";
-            break;
-        case TokenKind::TIMES:
-            os << "TIMES";
-            break;
-        case TokenKind::DIV:
-            os << "DIV";
-            break;
-        case TokenKind::EQUALS:
-            os << "EQUALS";
+        case TokenKind::OPERATOR:
+            os << "OPERATOR";
             break;
         case TokenKind::OPEN_PAREN:
             os << "OPEN_PAREN";

@@ -25,11 +25,13 @@ enum class TokenKind
     FOR,
     WHILE,
 
-    PLUS,
+    OPERATOR,
+
+    /*PLUS,
     TIMES,
     DIV,
     MINUS,
-    EQUALS,
+    EQUALS,*/
 
     OPEN_PAREN,
     CLOSE_PAREN,
@@ -48,13 +50,16 @@ public:
     {
     }
 
-    TokenKind getKind() { return m_kind; }
-    string_view getStr() { return m_str; }
-    int getLine() { return m_line; }
-    int getCol() { return m_col; }
+    TokenKind getKind() const { return m_kind; }
+    string_view getStr() const { return m_str; }
+    int getLine() const { return m_line; }
+    int getCol() const { return m_col; }
 
-    bool isKeyword() const;
-    bool isWhitespace() const;
+    bool isSignificant() const
+    {
+        return m_kind != TokenKind::COMMENT && m_kind != TokenKind::WHITESPACE &&
+               m_kind != TokenKind::NEWLINE;
+    }
 
 private:
     TokenKind m_kind;
@@ -62,7 +67,7 @@ private:
     int m_line;
     int m_col;
 };
-int getTokenPrecedence(TokenKind kind);
+int getTokenPrecedence(Token& token);
 std::ostream& operator<<(std::ostream& os, Token token);
 
 

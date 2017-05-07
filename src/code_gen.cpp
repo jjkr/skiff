@@ -191,23 +191,23 @@ void CodeGen::visit(BinaryOp& binOp)
     dispatch(binOp.getRhs());
     auto rhs = m_value;
 
-    auto opType = binOp.getType();
-    switch (opType)
+    auto op = binOp.getName();
+    switch (op[0])
     {
-        case TokenKind::PLUS:
+        case '+':
             m_value = m_irBuilder.CreateAdd(lhs, rhs);
             break;
-        case TokenKind::MINUS:
+        case '-':
             m_value = m_irBuilder.CreateSub(lhs, rhs);
             break;
-        case TokenKind::TIMES:
+        case '*':
             m_value = m_irBuilder.CreateMul(lhs, rhs);
             break;
-        case TokenKind::DIV:
+        case '/':
             m_value = m_irBuilder.CreateSDiv(lhs, rhs);
             break;
         default:
-            loge << "unknown operator: " << opType;
+            loge << "unknown operator: " << op;
     }
 }
 

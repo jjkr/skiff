@@ -73,7 +73,7 @@ unique_ptr<Expr> Parser::parsePrimaryExpr()
             return parseNumber();
         case TokenKind::STRING_LITERAL:
             return parseStringLiteral();
-        case TokenKind::MINUS:
+        case TokenKind::OPERATOR:
             return parseNegativeNumber();
         case TokenKind::OPEN_PAREN:
             return parseParenExpression();
@@ -92,7 +92,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
 {
     while (true)
     {
-        auto precedence = getTokenPrecedence(m_currentToken.getKind());
+        auto precedence = getTokenPrecedence(m_currentToken);
         if (precedence < minPrecedence)
         {
             return move(lhs);
@@ -102,7 +102,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
         advance();
         auto rhs = parsePrimaryExpr();
 
-        auto nextPrecedence = getTokenPrecedence(m_currentToken.getKind());
+        auto nextPrecedence = getTokenPrecedence(m_currentToken);
         if (precedence < nextPrecedence)
         {
             rhs = parseBinOpRhs(move(rhs), precedence + 1);
@@ -112,7 +112,7 @@ unique_ptr<Expr> Parser::parseBinOpRhs(unique_ptr<Expr>&& lhs, int minPrecedence
             }
         }
 
-        lhs = unique_ptr<Expr>(new BinaryOp(opToken.getKind(), move(lhs), move(rhs)));
+        lhs = unique_ptr<Expr>(new BinaryOp(opToken, move(lhs), move(rhs)));
     }
 }
 
@@ -247,7 +247,7 @@ unique_ptr<Expr> Parser::parseLetExpression()
 {
     advance(); // LET token
     auto id = parseIdentifier();
-    if (m_currentToken.getKind() != TokenKind::EQUALS)
+    if (m_currentToken.getStr() != "=")
     {
         throw runtime_error("Expected EQUALS token");
     }
@@ -284,7 +284,7 @@ void Parser::advance()
 Token Parser::takeToken()
 {
     Token tok = m_lexer.take();
-    while (tok.isWhitespace() || tok.getKind() == TokenKind::COMMENT)
+    while (!tok.isSignificant())
     {
         tok = m_lexer.take();
     }

@@ -29,7 +29,7 @@ TEST(Lexer, lexesEmptyStream)
 TEST(Lexer, lexesNegativeNumber)
 {
     Lexer lexer("-5");
-    EXPECT_EQ(TokenKind::MINUS, lexer.take().getKind());
+    EXPECT_EQ(TokenKind::OPERATOR, lexer.take().getKind());
     EXPECT_EQ(TokenKind::NUMBER, lexer.take().getKind());
 }
 
@@ -39,7 +39,7 @@ TEST(Lexer, lexesPlusExpression)
     EXPECT_EQ(TokenKind::NUMBER, lexer.take().getKind());
     EXPECT_EQ(TokenKind::WHITESPACE, lexer.take().getKind());
     auto plusTok = lexer.take();
-    EXPECT_EQ(TokenKind::PLUS, plusTok.getKind());
+    EXPECT_EQ(TokenKind::OPERATOR, plusTok.getKind());
     EXPECT_EQ("+", plusTok.getStr());
     EXPECT_EQ(3, plusTok.getCol());
     EXPECT_EQ(TokenKind::WHITESPACE, lexer.take().getKind());
@@ -94,7 +94,7 @@ TEST(Lexer, lexesLet)
     EXPECT_EQ(TokenKind::WHITESPACE, lexer.take().getKind());
     EXPECT_EQ(TokenKind::IDENTIFIER, lexer.take().getKind());
     EXPECT_EQ(TokenKind::WHITESPACE, lexer.take().getKind());
-    EXPECT_EQ(TokenKind::EQUALS, lexer.take().getKind());
+    EXPECT_EQ(TokenKind::OPERATOR, lexer.take().getKind());
     EXPECT_EQ(TokenKind::WHITESPACE, lexer.take().getKind());
     EXPECT_EQ(TokenKind::NUMBER, lexer.take().getKind());
 }

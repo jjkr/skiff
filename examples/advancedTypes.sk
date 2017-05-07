@@ -1,0 +1,97 @@
+# Imports
+import io
+import * = string
+
+# Arrays
+let stackArr: Array[Int] = [1, 4, 8]
+let heapArr: *Array[Int] = new [1, 4, 8]
+
+heapArr.append(7);
+
+type Nil
+let nil: Nil
+
+#Tuple types
+type Point = (Int, Int)
+
+# Sets
+let s: Set[Int] = @[1, 9, 2]
+
+iterator fib() {
+  if n < 2 = n
+  var last, cur = 0, 1
+  yield last
+  yield cur
+  loop {
+    last, cur = cur, last + cur
+    yield cur
+  }
+}
+
+interface Iterator[T] {
+  def `++`*(): &Iterator[T]
+  def `*`*(): &T
+}
+
+# Bounded integers
+type UnderTen = Range[0..10]
+let four: UnderTen = 4
+
+object Range[R: Iterator] {
+}
+
+# Maps
+type Table[(Col)] = Array[Col] # Table is an array of tuples
+object HashMap[K, V] = {
+  fn new*(table: Table[K, V]) {}
+  let table : Table[K, V]
+}
+type Dict[T] = HashMap[String, T]
+#{ ('', 2), ('4', 2) }
+
+fn createAndAdd[T]() {
+  let t = new T;
+  t.add(4)
+  return t
+}
+
+# Union types. Implemented as a tagged union at runtime
+type Shape = Square | Circle
+
+# Empty tuple and None are the same
+type None = ()
+# Value types
+type Value[T] = T
+# Maybe monad
+type Maybe[T] = Some[T] | None
+
+
+concept CanLoopOver[T] {
+  for t in val(T) = ()
+  for t in ref(T) = ()
+}
+
+let t = T()
+let m = Maybe[T](t)
+
+# Pattern matching
+match(m) {
+  Some[_] = x
+  None = abort()
+}
+
+class Node {
+  let value* = 3
+  fn getValue*() {
+  }
+  let val = 3
+}
+
+fn lessThen[T](a, b) = a < b
+
+fn sort[T](range: Iterable[T], compare?: (T, T)->Bool = lessThen) {
+}
+
+fn sortReverse(range) { sort(range, greaterThen) }
+
+sortReverse(list) fn(a, b) = a > b

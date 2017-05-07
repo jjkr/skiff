@@ -93,15 +93,16 @@ private:
 class BinaryOp : public Expr
 {
 public:
-    BinaryOp(TokenKind kind, std::unique_ptr<Expr>&& lhs, std::unique_ptr<Expr>&& rhs);
+    BinaryOp(Token token, std::unique_ptr<Expr>&& lhs, std::unique_ptr<Expr>&& rhs);
     void accept(AstVisitor& visitor) override { visitor.visit(*this); }
 
-    TokenKind getType() const { return m_kind; }
+    Token getToken() const { return m_token; }
+    string_view getName() const { return m_token.getStr(); }
     Expr& getLhs() { return m_lhs; }
     Expr& getRhs() { return m_rhs; }
 
 private:
-    TokenKind m_kind;
+    const Token m_token;
     Expr& m_lhs;
     Expr& m_rhs;
 };

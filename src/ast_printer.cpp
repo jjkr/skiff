@@ -114,7 +114,7 @@ void AstPrinter::visit(StringLiteral& srt)
 void AstPrinter::visit(BinaryOp& binOp)
 {
     indent();
-    m_out << "BinaryOp " << binOp.getType() << " {\n";
+    m_out << "BinaryOp " << binOp.getName() << " {\n";
     ++m_depth;
     dispatch(binOp.getLhs());
     dispatch(binOp.getRhs());
