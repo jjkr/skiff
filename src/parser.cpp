@@ -74,7 +74,7 @@ unique_ptr<Expr> Parser::parsePrimaryExpr()
         case TokenKind::STRING_LITERAL:
             return parseStringLiteral();
         case TokenKind::OPERATOR:
-            return parseNegativeNumber();
+            return parseUnaryOperator();
         case TokenKind::OPEN_PAREN:
             return parseParenExpression();
         case TokenKind::FN:
@@ -164,10 +164,20 @@ unique_ptr<Expr> Parser::parseIdExpression()
     return expr;
 }
 
-unique_ptr<Expr> Parser::parseNegativeNumber()
+unique_ptr<Expr> Parser::parseUnaryOperator()
 {
-    advance();
-    unique_ptr<Expr> expr(new I32Literal(-stoi(m_currentToken.getStr().to_string())));
+    auto opToken = m_currentToken;
+    advance(); // Operator
+    if (opToken.getStr() == "-")
+    {
+        if (m_currentToken.getKind() == TokenKind::NUMBER)
+        {
+            unique_ptr<Expr> expr(new I32Literal(-stoi(m_currentToken.getStr().to_string())));
+            advance();
+            return expr;
+        }
+    }
+    unique_ptr<Expr> expr(new UnaryOp(opToken, parseExpression()));
     advance();
     return expr;
 }

@@ -2,9 +2,11 @@
 import io
 import * = string
 
+const blockSize = 1024
+
 # Arrays
-let stackArr: Array[Int] = [1, 4, 8]
-let heapArr: *Array[Int] = new [1, 4, 8]
+let stackArr: Array[Int, 3] = [1, 4, 8]
+let heapArr: *Array[Int, 3] = new [1, 4, 8]
 
 heapArr.append(7);
 
@@ -14,8 +16,43 @@ let nil: Nil
 #Tuple types
 type Point = (Int, Int)
 
+type Value[T] : T
+
+let mut x = 8
+
+trait Record[T] {
+  def fn trivialCopy(): T
+}
+
+trait Moveable[T] {
+  def fn move*(s: mut *T)
+}
+
+class Seq {
+  let size = 0
+}
+
+class Int {
+  fn trivialCopy*() {}
+  fn clone*() {}
+}
+
+# Pass by value is move by default
+fn passByValue(x: Int) {
+}
+
+# Pass by const reference. Can be either stack or GC allocated
+fn passByReference(x: *Int) {
+  x = 5 # Illegal
+}
+
+# Pass by mutable reference
+fn passByMutReference(x: mut *Int) {
+  x = 5 # Ok
+}
+
 # Sets
-let s: Set[Int] = @[1, 9, 2]
+let s: Seq[Int] = @[1, 9, 2]
 
 iterator fib() {
   if n < 2 = n
@@ -27,6 +64,18 @@ iterator fib() {
     yield cur
   }
 }
+
+enum Color {
+  red,
+  blue,
+  green
+}
+
+struct Point {
+  let x*: Int
+  let y*: Int
+}
+fn radius*(p: Point): Int = sqrt(p.x ** 2 + p.y ** 2)
 
 interface Iterator[T] {
   def `++`*(): &Iterator[T]
@@ -41,13 +90,13 @@ object Range[R: Iterator] {
 }
 
 # Maps
-type Table[(Col)] = Array[Col] # Table is an array of tuples
+type Table[Col] = Array[Col] # Table is an array of tuples
 object HashMap[K, V] = {
   fn new*(table: Table[K, V]) {}
   let table : Table[K, V]
 }
 type Dict[T] = HashMap[String, T]
-#{ ('', 2), ('4', 2) }
+%{ ('', 2), ('4', 2) }
 
 fn createAndAdd[T]() {
   let t = new T;
@@ -76,7 +125,7 @@ let m = Maybe[T](t)
 
 # Pattern matching
 match(m) {
-  Some[_] = x
+  Some[x] = x
   None = abort()
 }
 

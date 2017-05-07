@@ -20,7 +20,7 @@ private:
     std::unique_ptr<Expr> parseBinOpRhs(std::unique_ptr<Expr>&& lhs, int minPrecedence);
     std::unique_ptr<Expr> parseIdExpression();
     std::unique_ptr<Identifier> parseIdentifier();
-    std::unique_ptr<Expr> parseNegativeNumber();
+    std::unique_ptr<Expr> parseUnaryOperator();
     std::unique_ptr<Expr> parseNumber();
     std::unique_ptr<Expr> parseStringLiteral();
     std::unique_ptr<Expr> parseFunctionDefinition();

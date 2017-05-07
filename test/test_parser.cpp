@@ -11,7 +11,9 @@ using sk::I32Literal;
 using sk::Module;
 using sk::Parser;
 using sk::SourceBuffer;
+using sk::UnaryOp;
 using std::to_string;
+using namespace std::string_literals;
 
 class ParserFixture : public ::testing::Test
 {
@@ -43,6 +45,27 @@ TEST_F(ParserFixture, parsesInt)
     EXPECT_EQ(1, expressions.size());
     auto& intLiteral = dynamic_cast<I32Literal&>(expressions[0].get());
     EXPECT_EQ(n, intLiteral.getValue());
+}
+
+TEST_F(ParserFixture, parsesNegativeInt)
+{
+    auto n = -877;
+    buffer.addBlock(to_string(n));
+    parser.parse();
+    auto& expressions = module.getMainBlock().getExpressions();
+    EXPECT_EQ(1, expressions.size());
+    auto& intLiteral = dynamic_cast<I32Literal&>(expressions[0].get());
+    EXPECT_EQ(n, intLiteral.getValue());
+}
+
+TEST_F(ParserFixture, parsesUnaryOperator)
+{
+    buffer.addBlock("++32");
+    parser.parse();
+    auto& expressions = module.getMainBlock().getExpressions();
+    EXPECT_EQ(1, expressions.size());
+    auto& op = dynamic_cast<UnaryOp&>(expressions[0].get());
+    EXPECT_EQ("++", op.getName());
 }
 
 TEST_F(ParserFixture, parsesPlusTimes)

@@ -22,6 +22,12 @@ BinaryOp::BinaryOp(Token token, unique_ptr<Expr>&& lhs, unique_ptr<Expr>&& rhs)
     addChild(move(lhs));
     addChild(move(rhs));
 }
+
+UnaryOp::UnaryOp(Token token, std::unique_ptr<Expr>&& arg) : m_token(token), m_arg(*arg)
+{
+    addChild(move(arg));
+};
+
 Function::Function(string_view name, std::vector<string_view>&& parameters)
     : m_name(name), m_parameters(move(parameters)), m_block("entry")
 {

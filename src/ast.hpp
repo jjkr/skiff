@@ -107,6 +107,21 @@ private:
     Expr& m_rhs;
 };
 
+class UnaryOp : public Expr
+{
+public:
+    UnaryOp(Token token, std::unique_ptr<Expr>&& arg);
+    void accept(AstVisitor& visitor) override { visitor.visit(*this); }
+
+    Token getToken() const { return m_token; }
+    string_view getName() const { return m_token.getStr(); }
+    Expr& getArgument() { return m_arg; }
+
+private:
+    const Token m_token;
+    Expr& m_arg;
+};
+
 class Function : public Expr
 {
 public:

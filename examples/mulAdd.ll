@@ -1,7 +1,9 @@
 ; ModuleID = 'mulAdd.sk'
 source_filename = "mulAdd.sk"
 
-define i32 @moduleMain(i32 %argc, i8** %argv) {
+declare i32 @puts(i8*)
+
+define i32 @main(i32 %argc, i8** %argv) {
   ret i32 0
 }
 
