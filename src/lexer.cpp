@@ -366,6 +366,18 @@ ostream& operator<<(ostream& os, TokenKind tokenType)
         case TokenKind::WHILE:
             os << "WHILE";
             break;
+        case TokenKind::AND:
+            os << "AND";
+            break;
+        case TokenKind::OR:
+            os << "OR";
+            break;
+        case TokenKind::NOT:
+            os << "NOT";
+            break;
+        case TokenKind::XOR:
+            os << "XOR";
+            break;
         case TokenKind::OPERATOR:
             os << "OPERATOR";
             break;

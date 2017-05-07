@@ -86,6 +86,12 @@ TEST_F(ParserFixture, parsesUnaryFunction)
     parser.parse();
 }
 
+TEST_F(ParserFixture, parsesAnd)
+{
+    buffer.addBlock("0 and 1");
+    parser.parse();
+}
+
 TEST_F(ParserFixture, parsesUnaryFunctionCall)
 {
     buffer.addBlock("foo(5)");
