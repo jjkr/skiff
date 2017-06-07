@@ -81,7 +81,6 @@ private:
 class Match : public AstNode
 {
 public:
-
 };
 
 class TypeMatch : public Match

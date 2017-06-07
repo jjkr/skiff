@@ -12,6 +12,7 @@ enum class TokenKind
     NEWLINE,
     END_OF_INPUT,
     IDENTIFIER,
+    TYPE_IDENTIFIER,
     NUMBER,
 
     STRING_LITERAL,

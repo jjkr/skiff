@@ -2,11 +2,159 @@
 import io
 import * = string
 
-let x: String = 5
 
-const blockSize = 1024
-
+# Function definition. Type annotation optional
 fn foo(x: Int) = x + 3
+
+
+# Compile time constant
+const blockSize = 1024
+# Compile time string
+const magicStr: String = 'foobar';
+# Ref, pointer and value types
+
+
+
+
+class Array[Size: Int]
+
+type Ref[T] {
+  fn drop*() { gc_unref(); }
+}
+
+type Ptr[T] {
+  fn drop*() { # do nothing }
+}
+
+class String {
+  fn new*()
+}
+
+class ConstString {
+  fn new() = @
+  let @size
+  fn @size() = @
+}
+
+
+fn `++`[S: String](lhs: S, rhs: S) {
+  return lhs.append(rhs);
+}
+
+
+
+trait Exception {
+  fn `$`() -> String;
+}
+
+
+trait Monad[T] {
+  fn lift(t: T) -> Monad[T];
+  fn bind(f: (...) -> Monad[U]) -> Monad[U];
+}
+
+
+##########################################
+# Special Operators
+
+# Unary $ is toString
+let s: String = $5
+
+fn `$`(i: mut Int) {
+  new String(fn () {
+    while i {
+      yield i mod 10
+      i /= 10
+    }
+  })
+}
+
+
+# Unary @ is ???????
+# Type coercion? Member access?
+
+
+
+
+##########################################
+Pass by value???? pass by reference??
+
+Dynamic Array -> value type (ptr, length)
+Two types of reference -> static and gc
+Copyable types? Int, Bool, Structs
+
+fn addFive(x: Int) {
+  x += 5;
+}
+let i = new Int(5)
+addFive(i)
+print(i) # Prints 5 or 10??
+
+# Value type
+struct Array[T] {
+  let size: Int;
+  let data: &mut T;
+}
+
+trait Enumerable[T] {
+  fn ``
+}
+
+fn sum(a: Array[T]) {
+  let mut acc = 0
+  for x in a {
+    acc += a
+  }
+  acc
+}
+
+## Async result
+trait Async[T] {
+}
+
+
+## Error or Value type
+trait Err[T] {
+}
+
+
+## Combination async and err type Async[Err[T]]
+trait IO[T] {
+}
+
+
+
+fn readStd() -> IO[String] {
+  # magic
+}
+
+fn print[S: String](
+
+
+trait Map[Key, Value] {
+  fn index(i: Int);
+  fn find[K: Key](key: K) -> Err[Value];
+}
+
+
+trait Copy {
+
+}
+
+
+class Int impl Copy {
+
+}
+
+
+class String {
+  fn new() {
+  }
+  let base
+}
+
+# Template operator
+template `++`[L: List[L]](lists: []L)
 
 fn (x) = x
 
