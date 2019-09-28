@@ -1,5 +1,5 @@
 /**
- * Skiff Compiler
+ * Skiff Interpreter
  */
 #include "ast.hpp"
 #include "code_gen.hpp"
