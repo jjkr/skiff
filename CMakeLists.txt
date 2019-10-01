@@ -11,14 +11,20 @@ find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
+include(ProjectBinaryen)
+
+#set(BINARYEN_PATH "${CMAKE_SOURCE_DIR}/vendor/binaryen")
+#add_subdirectory(${BINARYEN_PATH})
+
 # Find the libraries that correspond to the LLVM components
 # that we wish to use
 llvm_map_components_to_libnames(llvm_libs all)
-set(SYSTEM_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${llvm_libs})
+set(SYSTEM_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} LLVM)
 
 include_directories(SYSTEM "${LIBUV_INCLUDE_DIR}")
 include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
-include_directories("${CMAKE_SOURCE_DIR}/src" SYSTEM "${CMAKE_SOURCE_DIR}/vend")
+include_directories(SYSTEM "${BINARYEN_INCLUDE_DIR}")
+include_directories("${CMAKE_SOURCE_DIR}/src" SYSTEM "${CMAKE_SOURCE_DIR}/vendor")
 add_definitions(${LLVM_DEFINITIONS})
 
 add_subdirectory(src)
