@@ -19,7 +19,7 @@ include(ProjectBinaryen)
 # Find the libraries that correspond to the LLVM components
 # that we wish to use
 llvm_map_components_to_libnames(llvm_libs all)
-set(SYSTEM_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} LLVM)
+set(SYSTEM_LIBRARIES Threads::Threads LLVM)
 
 include_directories(SYSTEM "${LIBUV_INCLUDE_DIR}")
 include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
