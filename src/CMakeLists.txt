@@ -19,11 +19,17 @@ add_library(skiff
         source.cpp
         compiler.hpp
         compiler.cpp
+        wasm_code_gen.hpp
+        wasm_code_gen.cpp
+        wasm_compiler.hpp
+        wasm_compiler.cpp
         )
 add_executable(skc skc.cpp)
 target_link_libraries(skc skiff ${SYSTEM_LIBRARIES})
 add_executable(ski ski.cpp)
 target_link_libraries(ski skiff ${SYSTEM_LIBRARIES})
+add_executable(skic skic.cpp)
+target_link_libraries(skic skiff ${SYSTEM_LIBRARIES})
 add_executable(hello_llvm hello_llvm.cpp)
 target_link_libraries(hello_llvm skiff ${SYSTEM_LIBRARIES})
 add_executable(hello_llvm_c hello_llvm_c.cpp)
