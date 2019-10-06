@@ -1,14 +1,28 @@
 #pragma once
 #include "ast.hpp"
+#include <binaryen-c.h>
 #include <map>
 #include <memory>
 
 namespace sk
 {
+class BinaryenModuleRelease
+{
+public:
+    BinaryenModuleRelease(const BinaryenModuleRef module) : m_module(module) {}
+    ~BinaryenModuleRelease();
+
+    BinaryenModuleRelease(const BinaryenModuleRelease&) = delete;
+    BinaryenModuleRelease& operator=(const BinaryenModuleRelease&) = delete;
+
+private:
+    BinaryenModuleRef m_module;
+};
+
 class WasmCodeGen : public AstVisitor
 {
 public:
-    WasmCodeGen(string_view sourceFile);
+    WasmCodeGen();
 
     void visit(Module& module) override;
     void visit(Block& block) override;
@@ -26,7 +40,6 @@ public:
     void visit(TupleMatch& match) override;
     void visit(TypeMatch& match) override;
 
-private:
     //std::map<string_view, llvm::Value*> m_symbols;
     //std::map<string_view, llvm::Value*> m_functions;
     //Block* m_block = nullptr;
@@ -34,5 +47,11 @@ private:
     //llvm::LLVMContext m_llvmContext;
     //llvm::IRBuilder<> m_irBuilder;
     //std::unique_ptr<llvm::Module> m_module;
+
+    void printIr();
+
+private:
+    BinaryenModuleRef m_module;
+    BinaryenModuleRelease m_moduleRelease;
 };
 }

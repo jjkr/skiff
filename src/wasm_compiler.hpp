@@ -16,6 +16,7 @@ public:
 
     void compile();
     void printAst(std::ostream& out);
+    void printIr();
 
 private:
     const char* const m_filename;

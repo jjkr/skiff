@@ -16,7 +16,7 @@ WasmCompiler::WasmCompiler(const char* filename)
       m_lexer(m_source),
       m_module(filename),
       m_parser(m_module, m_lexer),
-      m_codeGen(filename)
+      m_codeGen()
 {
 }
 
@@ -30,5 +30,10 @@ void WasmCompiler::printAst(ostream& os)
 {
     AstPrinter printer(os);
     printer.dispatch(m_module);
+}
+
+void WasmCompiler::printIr()
+{
+    m_codeGen.printIr();
 }
 }

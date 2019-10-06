@@ -31,4 +31,6 @@ int main(int argc, char** argv)
     compiler.printAst(cout);
     cout << endl;
 
+    logd << "**** BINARYEN IR MODULE ****";
+    compiler.printIr();
 }
